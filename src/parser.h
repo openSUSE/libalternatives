@@ -3,16 +3,58 @@
 struct AlternativeLink;
 struct OptionsParserState;
 
-// parser.c
-// parsing priority options installed on the system
+/* parser.c
+ * parsing priority options installed on the system
+ *
+ * format:
+ * binary = /some/path
+ * man = some_manpage.1
+ *
+ * space is optional and ignored. Fail on unexpected input.
+ */
+
 struct OptionsParserState* initOptionsParser();
+
+// parses some input, can be partial
+// return 0 on OK, -1 on fail
 int parseOptionsData(const char *buffer, size_t len, struct OptionsParserState *state);
+
+// Frees parsing state. returns array of links from the options, end with ALTLINK_EOL type
+// entry. NULL on error.
 struct AlternativeLink* doneOptionsParser(int priority, struct OptionsParserState *state);
 
 
-// config_parser.c
-// parsing user override config files
+
+/* config_parser.c
+ * parsing user override config files
+ *
+ * format:
+ * binary_name=<priority>
+ *
+ * where
+ *    binary_name is passed exactly in the init function
+ *    <priority> is a base-10 number followed by a \n
+ *
+ * space is optional and ignored.
+ * lines that do not match this syntax are to be treated as comments and
+ * ignored
+ */
+
 struct ConfigParserState;
+
 struct ConfigParserState* initConfigParser(const char *binary_name);
+
+// parses some input, can be partial
+// returns 1 when match found and is parsed, 0 otherwise
 int parseConfigData(const char *buffer, size_t len, struct ConfigParserState *state);
+
+// returns priority of the matched binary
+// frees any memory allocated by parser
 int doneConfigParserAndReturnPreferredPriority(struct ConfigParserState *state);
+
+// set or resets priority (clears config entry) for the binary_name
+// assumes the entire config is already parsed by parseCondifData()
+//    return NULL if state is freed (eg. by the doneConfigParser
+//    function)
+const char* setBinaryPriorityAndReturnUpdatedConfig(int priority, struct ConfigParserState *state);
+const char* resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserState *state);
