@@ -45,12 +45,14 @@ struct ConfigParserState;
 struct ConfigParserState* initConfigParser(const char *binary_name);
 
 // parses some input, can be partial
-// returns 1 when match found and is parsed, 0 otherwise
+// returns
+//   "priority" when match found and is parsed, 0 otherwise
+// on further input, returns already matched priority above and ignores
+// input as comments
 int parseConfigData(const char *buffer, size_t len, struct ConfigParserState *state);
 
-// returns priority of the matched binary
 // frees any memory allocated by parser
-int doneConfigParserAndReturnPreferredPriority(struct ConfigParserState *state);
+void doneConfigParser(struct ConfigParserState *state);
 
 // set or resets priority (clears config entry) for the binary_name
 // assumes the entire config is already parsed by parseCondifData()
