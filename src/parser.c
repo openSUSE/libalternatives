@@ -4,9 +4,9 @@
 #include "libalternatives.h"
 #include "parser.h"
 
-typedef int(*ParserFunction)(const char *data, size_t len, struct ParserState *state);
+typedef int(*ParserFunction)(const char *data, size_t len, struct OptionsParserState *state);
 
-struct ParserState
+struct OptionsParserState
 {
 	u_int32_t parser_func_param, parser_func_param2;
 	ParserFunction parser_func;
@@ -25,7 +25,7 @@ static int isDelimeter(const char c)
 	return c == '=';
 }
 
-static int parser_alreadyErrorNoResumePossible(const char *data, size_t len, struct ParserState *state)
+static int parser_alreadyErrorNoResumePossible(const char *data, size_t len, struct OptionsParserState *state)
 {
 	(void)data;
 	(void)len;
@@ -34,8 +34,8 @@ static int parser_alreadyErrorNoResumePossible(const char *data, size_t len, str
 	return -1;
 }
 
-static int parser_searchToken(const char *data, size_t len, struct ParserState *state);
-static int parser_parseValue(const char *data, size_t len, struct ParserState *state)
+static int parser_searchToken(const char *data, size_t len, struct OptionsParserState *state);
+static int parser_parseValue(const char *data, size_t len, struct OptionsParserState *state)
 {
 	struct AlternativeLink *link = state->parsed_data + state->parser_func_param;
 	u_int16_t value_string_pos = state->parser_func_param2 & 0xFFFF;
@@ -90,7 +90,7 @@ static void allocateBuffer(struct AlternativeLink **link, int *size_ptr)
 	*size_ptr = size;
 }
 
-static int findFirstParsedDataLocation(struct ParserState *state, int type)
+static int findFirstParsedDataLocation(struct OptionsParserState *state, int type)
 {
 	for (int i=0; i<state->parsed_data_size - 1; ++i) {
 		struct AlternativeLink *data = state->parsed_data + i;
@@ -116,7 +116,7 @@ enum WhiteSpaceSkipType
 	MAN_FUNCTION_AFTER_EQUAL=MAN_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
 };
 
-static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct ParserState *state)
+static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct OptionsParserState *state)
 {
 	while (len > 0 && isWhitespace(*data)) {
 		len--;
@@ -157,7 +157,7 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Pa
 	return state->parser_func(data, len, state);
 }
 
-static int assertTokenMatch(const char *data, size_t len, struct ParserState *state, const char *match, int match_len, int whiteSpace_param)
+static int assertTokenMatch(const char *data, size_t len, struct OptionsParserState *state, const char *match, int match_len, int whiteSpace_param)
 {
 	int pos = state->parser_func_param;
 	int end_pos = match_len - pos + 1 <= (int)len ? match_len - pos + 1 : (int)len + pos;
@@ -182,20 +182,20 @@ static int assertTokenMatch(const char *data, size_t len, struct ParserState *st
 	return state->parser_func(data, len, state);
 }
 
-static int parser_assertBinaryToken(const char *data, size_t len, struct ParserState *state)
+static int parser_assertBinaryToken(const char *data, size_t len, struct OptionsParserState *state)
 {
 	const char match[] = "binary";
 	return assertTokenMatch(data, len, state, match, sizeof(match)-1, BINARY_FUNCTION_BEFORE_EQUAL);
 }
 
-static int parser_assertManpageToken(const char *data, size_t len, struct ParserState *state)
+static int parser_assertManpageToken(const char *data, size_t len, struct OptionsParserState *state)
 {
 	const char match[] = "man";
 
 	return assertTokenMatch(data, len, state, match, sizeof(match)-1, MAN_FUNCTION_BEFORE_EQUAL);
 }
 
-static int parser_searchToken(const char *data, size_t len, struct ParserState *state)
+static int parser_searchToken(const char *data, size_t len, struct OptionsParserState *state)
 {
 	while (len > 0 && (isWhitespace(*data) || *data == '\n' || *data == '\r')) {
 		data++;
@@ -221,9 +221,9 @@ static int parser_searchToken(const char *data, size_t len, struct ParserState *
 	return state->parser_func(data+1, len-1, state);
 }
 
-struct ParserState* initParser()
+struct OptionsParserState* initOptionsParser()
 {
-	struct ParserState *state = malloc(sizeof(struct ParserState));
+	struct OptionsParserState *state = malloc(sizeof(struct OptionsParserState));
 
 	state->parser_func = parser_searchToken;
 	state->parser_func_param = 0;
@@ -233,12 +233,12 @@ struct ParserState* initParser()
 	return state;
 }
 
-int parseConfigData(const char *buffer, size_t len, struct ParserState *state)
+int parseOptionsData(const char *buffer, size_t len, struct OptionsParserState *state)
 {
 	return state->parser_func(buffer, len, state);
 }
 
-struct AlternativeLink* doneParser(int priority, struct ParserState *state)
+struct AlternativeLink* doneOptionsParser(int priority, struct OptionsParserState *state)
 {
 	int errors = 0;
 	while (state->parser_func != parser_searchToken && (errors = state->parser_func("\n", 1, state)) == 0);
