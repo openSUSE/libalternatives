@@ -106,14 +106,14 @@ int loadDefaultAlternativesForBinary(const char *binary_name, struct Alternative
 	free((void*)filename);
 	close (binaryconfigdirfd);
 
-	struct ParserState *state = initParser();
+	struct OptionsParserState *state = initOptionsParser();
 	char buffer[1024];
 	int len = 0;
 	int ret = 0;
 	while (ret == 0 && (len = read(fd, buffer, 1024)) > 0)
-		ret = parseConfigData(buffer, len, state);
+		ret = parseOptionsData(buffer, len, state);
 
 	close(fd);
-	*alternatives = doneParser(prio, state);
+	*alternatives = doneOptionsParser(prio, state);
 	return ret;
 }
