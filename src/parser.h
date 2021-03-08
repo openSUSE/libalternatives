@@ -49,7 +49,7 @@ struct ConfigParserState* initConfigParser(const char *binary_name);
 //   "priority" when match found and is parsed, 0 otherwise
 // on further input, returns already matched priority above and ignores
 // input as comments
-int parseConfigData(const char *buffer, size_t len, struct ConfigParserState *state);
+int parseConfigData(const char *buffer, struct ConfigParserState *state);
 
 // frees any memory allocated by parser
 void doneConfigParser(struct ConfigParserState *state);
@@ -58,5 +58,5 @@ void doneConfigParser(struct ConfigParserState *state);
 // assumes the entire config is already parsed by parseCondifData()
 //    return NULL if state is freed (eg. by the doneConfigParser
 //    function)
-const char* setBinaryPriorityAndReturnUpdatedConfig(int priority, struct ConfigParserState *state);
-const char* resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserState *state);
+void setBinaryPriorityAndReturnUpdatedConfig(int priority, struct ConfigParserState *state);
+void resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserState *state);
