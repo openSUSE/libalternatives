@@ -12,11 +12,27 @@ struct ConfigParserState
   char *binary_name;
   u_int32_t priority;
 
-  /* position in the file */
-  u_int32_t line_number;
-
+  u_int32_t line_number;   /* file line nr. */
 };
 
+static char *ltrim(char *s)
+{
+    while(isspace(*s)) s++;
+    return s;
+}
+
+static char *rtrim(char *s)
+{
+    char* back = s + strlen(s);
+    while(isspace(*--back));
+    *(back+1) = '\0';
+    return s;
+}
+
+static char *trim(char *s)
+{
+    return rtrim(ltrim(s));
+}
 
 struct ConfigParserState* initConfigParser(const char *binary_name)
 {
@@ -53,8 +69,7 @@ int parseConfigData(const char *buffer,
       /* evaluating key (binary_name) */
       raw_key = strndup(line,equal_pos-line);
       char key[strlen(raw_key)];
-      
-      sscanf(raw_key,"%s",key); /* strip whitespaces */
+      strcpy(key,trim(raw_key)); /* strip whitespaces */
       free(raw_key);
       if (strcmp(key,state->binary_name) != 0)
 	continue; /* not the binaray key */
@@ -67,21 +82,18 @@ int parseConfigData(const char *buffer,
     if (comment_pos == NULL) {
       raw_value = strdup(equal_pos+1);
     } else {
-      raw_value = strndup(equal_pos+1,comment_pos-equal_pos);
+      raw_value = strndup(equal_pos+1,comment_pos-equal_pos-1);
     }
-
     char *endptr = NULL;
     long int val = strtol(raw_value, &endptr, 10);
     if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
-	|| (errno != 0 && val == 0)) {
+	|| (errno != 0 && val == 0)
+	|| (endptr == raw_value)   /* No digits were found. */
+	|| (*trim(endptr) != '\0') /* There is still a rest */) {
+      free(raw_value);
       continue;
     }
-    if (endptr == raw_value) {
-      /* "No digits were found. */
-      continue;      
-    }
     
-    free(raw_value);
     state->priority = (int) val;
     state->line_number = line_number;
     return (int) val;
