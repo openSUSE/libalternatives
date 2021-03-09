@@ -62,7 +62,7 @@ int parseConfigData(const char *buffer,
   /* strsep changes the buffer. So we need a copy of it.*/
   char *begin_buf __attribute__ ((__cleanup__(free_buffer))) = strdup(buffer);
   char *buf = begin_buf;
-  
+
   char *line = strsep(&buf, "\n");
   if (line == NULL)
     return 0;
@@ -73,13 +73,16 @@ int parseConfigData(const char *buffer,
     if (equal_pos != NULL)
     {
       /* evaluating key (binary_name) */
-      char *raw_key = NULL;      
+      char *raw_key, *key = NULL;
       raw_key = strndup(line,equal_pos-line);
-      char key[strlen(raw_key)];
-      strcpy(key,trim(raw_key)); /* strip whitespaces */
+      key = strdup(trim(raw_key)); /* strip whitespaces */
       free(raw_key);
       if (strcmp(key,state->binary_name) != 0)
+      {
+	free(key);
 	continue; /* not the binary key */
+      }
+      free(key);
     } else {
       continue;
     }
