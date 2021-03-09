@@ -62,23 +62,24 @@ int parseConfigData(const char *buffer,
     return 0;
 
   do {
-    char *raw_key, *raw_value = NULL;
     const char *equal_pos = strstr(line,"=");
     if (equal_pos != NULL)
     {
       /* evaluating key (binary_name) */
+      char *raw_key = NULL;      
       raw_key = strndup(line,equal_pos-line);
       char key[strlen(raw_key)];
       strcpy(key,trim(raw_key)); /* strip whitespaces */
       free(raw_key);
       if (strcmp(key,state->binary_name) != 0)
-	continue; /* not the binaray key */
+	continue; /* not the binary key */
     } else {
       continue;
     }
 
     /* evaluating priority */
     const char *comment_pos = strstr(line,"#"); /* stripping comment */
+    char *raw_value = NULL;    
     if (comment_pos == NULL) {
       raw_value = strdup(equal_pos+1);
     } else {
@@ -93,6 +94,7 @@ int parseConfigData(const char *buffer,
       free(raw_value);
       continue;
     }
+    free(raw_value);    
     
     state->priority = (int) val;
     state->line_number = line_number;
