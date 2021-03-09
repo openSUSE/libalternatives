@@ -84,6 +84,7 @@ int parseConfigData(const char *buffer,
       }
       free(key);
     } else {
+      /* no "=" found */
       continue;
     }
 
