@@ -37,6 +37,11 @@ static char *trim(char *s)
     return rtrim(ltrim(s));
 }
 
+void free_buffer(char **buffer)
+{
+  free(*buffer);
+}
+
 /*----------------------------------------------------------------------*/
 
 struct ConfigParserState* initConfigParser(const char *binary_name)
@@ -53,10 +58,12 @@ struct ConfigParserState* initConfigParser(const char *binary_name)
 int parseConfigData(const char *buffer,
 		    struct ConfigParserState *state)
 {
-  const char *line;
   int line_number = 0;
+  /* strsep changes the buffer. So we need a copy of it.*/
+  char *begin_buf __attribute__ ((__cleanup__(free_buffer))) = strdup(buffer);
+  char *buf = begin_buf;
   
-  line = strsep(&buffer, "\n");
+  char *line = strsep(&buf, "\n");
   if (line == NULL)
     return 0;
 
@@ -99,7 +106,7 @@ int parseConfigData(const char *buffer,
     state->priority = (int) val;
     state->line_number = line_number;
     return (int) val;
-  } while ((line = strsep(&buffer, "\n")) != NULL);
+  } while ((line = strsep(&buf, "\n")) != NULL);
 
   return 0;
 }
