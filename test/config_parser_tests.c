@@ -12,6 +12,7 @@ struct ConfigParserState *state;
 static void resultsWithoutParsing()
 {
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -19,6 +20,7 @@ static void parsingEmptyData()
 {
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData("", state), 0);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1)
   doneConfigParser(state);
 }
 
@@ -28,7 +30,7 @@ static void parsingSimpleEntry()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),10);
-
+  CU_ASSERT_EQUAL(getConfigLineNr(state), 1);
   doneConfigParser(state);
 }
 
@@ -38,6 +40,7 @@ static void parsingGarbageData1()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(data, state), 0);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -47,7 +50,7 @@ static void parsingGarbageData2()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),0);
-
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -57,7 +60,7 @@ static void parsingGarbageData3()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),0);
-
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -67,7 +70,7 @@ static void parsingFalseEntry()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),0);
-
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -77,6 +80,7 @@ static void parsingWithOtherEntries()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -86,6 +90,7 @@ static void parsingWithWhitespaces1()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),50);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -95,6 +100,7 @@ static void parsingWithWhitespaces2()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),56);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -104,6 +110,7 @@ static void parsingWithComment()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),57);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), 1);
   doneConfigParser(state);
 }
 
@@ -113,15 +120,17 @@ static void parsingNoneDigitalValue()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),0);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
 static void  duplicateUseFirstEntry()
 {
-  const char entries[] = "\n editor=5 \n editor=10 \n";
+  const char entries[] = "\n\n editor=5 \n editor=10 \n";
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -133,6 +142,7 @@ void addConfigParserTests()
 							 noop_function,
 							 (void(*)(void))noop_function,
 							 (void(*)(void))noop_function);
+
   CU_ADD_TEST(tests, resultsWithoutParsing);
   CU_ADD_TEST(tests, parsingEmptyData);
   CU_ADD_TEST(tests, parsingGarbageData1);

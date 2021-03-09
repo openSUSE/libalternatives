@@ -7,13 +7,16 @@
 
 #include "parser.h"
 
+/*----------------------------------------------------------------------*/
+
 struct ConfigParserState
 {
   char *binary_name;
   u_int32_t priority;
-
   u_int32_t line_number;   /* file line nr. */
 };
+
+/*------------------------------static----------------------------------*/
 
 static char *ltrim(char *s)
 {
@@ -34,6 +37,8 @@ static char *trim(char *s)
     return rtrim(ltrim(s));
 }
 
+/*----------------------------------------------------------------------*/
+
 struct ConfigParserState* initConfigParser(const char *binary_name)
 {
   struct ConfigParserState *state = malloc(sizeof(struct ConfigParserState));
@@ -45,23 +50,18 @@ struct ConfigParserState* initConfigParser(const char *binary_name)
   return state;  
 }
 
-// parses some input, can be partial
-// returns
-//   "priority" when match found and is parsed, 0 otherwise
-// on further input, returns already matched priority above and ignores
-// input as comments
 int parseConfigData(const char *buffer,
 		    struct ConfigParserState *state)
 {
   const char *line;
-  char *temp;
   int line_number = 0;
   
-  line = strtok_r((char*) buffer, "\n", &temp);
+  line = strsep(&buffer, "\n");
   if (line == NULL)
     return 0;
 
   do {
+    line_number++;
     const char *equal_pos = strstr(line,"=");
     if (equal_pos != NULL)
     {
@@ -99,13 +99,11 @@ int parseConfigData(const char *buffer,
     state->priority = (int) val;
     state->line_number = line_number;
     return (int) val;
-    line_number++;
-  } while ((line = strtok_r(NULL, "\n", &temp)) != NULL);
+  } while ((line = strsep(&buffer, "\n")) != NULL);
 
   return 0;
 }
 
-// frees any memory allocated by parser
 void doneConfigParser(struct ConfigParserState *state)
 {
   if (state != NULL) {
@@ -114,21 +112,38 @@ void doneConfigParser(struct ConfigParserState *state)
   }
 }
 
-// set or resets priority (clears config entry) for the binary_name
-// assumes the entire config is already parsed by parseCondifData()
-//    return NULL if state is freed (eg. by the doneConfigParser
-//    function)
-void setBinaryPriorityAndReturnUpdatedConfig(int priority,
-					     struct ConfigParserState *state)
+int getConfigLineNr(const struct ConfigParserState *state)
+{
+  if (state == NULL)
+    return -1;
+  return state->line_number;
+}
+
+int getConfigPriority(const struct ConfigParserState *state)
+{
+  if (state == NULL)
+    return -1;
+  return state->priority;
+}
+
+const char *getConfigBinaryName(const struct ConfigParserState *state)
+{
+  if (state == NULL)
+    return NULL;
+  return state->binary_name;
+}
+
+void setConfigPriority(int priority,
+			     struct ConfigParserState *state)
 {
   if (state != NULL) {
     state->priority = priority;    
   }
 }
-void resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserState *state)
+void resetConfigDefaultPriority(struct ConfigParserState *state)
 {
   if (state != NULL) {
     state->priority = 0;
-    state->line_number = 0;    
+    state->line_number = -1;
   }  
 }

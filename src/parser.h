@@ -26,18 +26,20 @@ struct AlternativeLink* doneOptionsParser(int priority, struct OptionsParserStat
 
 
 /* config_parser.c
- * parsing user override config files
+ * Parsing user override config files which is located in
+ * /etc/libalternatives.conf or $HOME/.config/libalternatives.conf
  *
  * format:
  * binary_name=<priority>
  *
  * where
- *    binary_name is passed exactly in the init function
- *    <priority> is a base-10 number followed by a \n
+ *    binary_name is passed exactly in the init function.
+ *    <priority> is a base-10 number followed by a \n.
+ *    Comments starts with #.
  *
- * space is optional and ignored.
- * lines that do not match this syntax are to be treated as comments and
- * ignored
+ * Space is optional and ignored.
+ * Lines that do not match this syntax are to be treated as comments and
+ * ignored.
  */
 
 struct ConfigParserState;
@@ -58,5 +60,8 @@ void doneConfigParser(struct ConfigParserState *state);
 // assumes the entire config is already parsed by parseCondifData()
 //    return NULL if state is freed (eg. by the doneConfigParser
 //    function)
-void setBinaryPriorityAndReturnUpdatedConfig(int priority, struct ConfigParserState *state);
-void resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserState *state);
+void setConfigPriority(int priority, struct ConfigParserState *state);
+void resetConfigDefaultPriority(struct ConfigParserState *state);
+int getConfigLineNr(const struct ConfigParserState *state);
+int getConfigPriority(const struct ConfigParserState *state);
+const char *getConfigBinaryName(const struct ConfigParserState *state);
