@@ -134,6 +134,30 @@ static void  duplicateUseFirstEntry()
   doneConfigParser(state);
 }
 
+static void SetGetResetEntry()
+{
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 0);
+  setConfigPriority(2,state);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 2);
+  setConfigDefaultPriority(state);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 0);
+  CU_ASSERT_EQUAL(strcmp(getConfigBinaryName(state), "editor"), 0);
+  doneConfigParser(state);
+}
+
+static void SetGetResetNullEntry()
+{
+  state = NULL;
+  getConfigLineNr(state);
+  CU_ASSERT_EQUAL(getConfigPriority(state), -1);
+  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
+  getConfigBinaryName(state);
+  setConfigPriority(2,state);
+  setConfigDefaultPriority(state);
+  doneConfigParser(state);
+}
 
 void addConfigParserTests()
 {
@@ -156,4 +180,6 @@ void addConfigParserTests()
   CU_ADD_TEST(tests, parsingNoneDigitalValue);
   CU_ADD_TEST(tests, duplicateUseFirstEntry);
   CU_ADD_TEST(tests, parsingWithComment);
+  CU_ADD_TEST(tests, SetGetResetEntry);
+  CU_ADD_TEST(tests, SetGetResetNullEntry);
 }

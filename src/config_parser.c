@@ -151,7 +151,7 @@ void setConfigPriority(int priority,
     state->priority = priority;    
   }
 }
-void resetConfigDefaultPriority(struct ConfigParserState *state)
+void setConfigDefaultPriority(struct ConfigParserState *state)
 {
   if (state != NULL) {
     state->priority = 0;

@@ -61,7 +61,7 @@ void doneConfigParser(struct ConfigParserState *state);
 //    return NULL if state is freed (eg. by the doneConfigParser
 //    function)
 void setConfigPriority(int priority, struct ConfigParserState *state);
-void resetConfigDefaultPriority(struct ConfigParserState *state);
+void setConfigDefaultPriority(struct ConfigParserState *state);
 int getConfigLineNr(const struct ConfigParserState *state);
 int getConfigPriority(const struct ConfigParserState *state);
 const char *getConfigBinaryName(const struct ConfigParserState *state);
