@@ -163,7 +163,7 @@ static void noResumeFromError()
 	CU_ASSERT_PTR_NULL(doneOptionsParser(10, state));
 }
 
-void addParserTests()
+void addOptionsParserTests()
 {
 	CU_pSuite tests = CU_add_suite_with_setup_and_teardown("parser",
 	                      noop_function, noop_function,

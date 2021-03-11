@@ -159,6 +159,20 @@ static void SetGetResetNullEntry()
   doneConfigParser(state);
 }
 
+static void similarBinaries()
+{
+  const char editor_with_space[] = "my editor=10\neditor=11\n";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(editor_with_space, state), 11);
+}
+
+static void invalidNegativePriority()
+{
+  const char editor_with_space[] = "editor=-10\neditor=11\n";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(editor_with_space, state), 11);
+}
+
 void addConfigParserTests()
 {
   CU_pSuite tests = CU_add_suite_with_setup_and_teardown("ConfigParser",
@@ -182,4 +196,6 @@ void addConfigParserTests()
   CU_ADD_TEST(tests, parsingWithComment);
   CU_ADD_TEST(tests, SetGetResetEntry);
   CU_ADD_TEST(tests, SetGetResetNullEntry);
+  CU_ADD_TEST(tests, similarBinaries);
+  CU_ADD_TEST(tests, invalidNegativePriority);
 }

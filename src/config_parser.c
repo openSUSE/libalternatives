@@ -52,7 +52,7 @@ struct ConfigParserState* initConfigParser(const char *binary_name)
   state->priority = 0;
   state->line_number = -1;
 
-  return state;  
+  return state;
 }
 
 int parseConfigData(const char *buffer,
@@ -63,11 +63,9 @@ int parseConfigData(const char *buffer,
   char *begin_buf __attribute__ ((__cleanup__(free_buffer))) = strdup(buffer);
   char *buf = begin_buf;
 
-  char *line = strsep(&buf, "\n");
-  if (line == NULL)
-    return 0;
+  char *line;
 
-  do {
+  while (state->priority == 0 && (line = strsep(&buf, "\n")) != NULL) {
     line_number++;
     const char *equal_pos = strstr(line,"=");
     if (equal_pos != NULL)
@@ -90,7 +88,7 @@ int parseConfigData(const char *buffer,
 
     /* evaluating priority */
     const char *comment_pos = strstr(line,"#"); /* stripping comment */
-    char *raw_value = NULL;    
+    char *raw_value = NULL;
     if (comment_pos == NULL) {
       raw_value = strdup(equal_pos+1);
     } else {
@@ -101,18 +99,18 @@ int parseConfigData(const char *buffer,
     if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
 	|| (errno != 0 && val == 0)
 	|| (endptr == raw_value)   /* No digits were found. */
-	|| (*trim(endptr) != '\0') /* There is still a rest */) {
+	|| (*trim(endptr) != '\0') /* There is still a rest */
+  || val <= 0) {
       free(raw_value);
       continue;
     }
-    free(raw_value);    
-    
+    free(raw_value);
+
     state->priority = (int) val;
     state->line_number = line_number;
-    return (int) val;
-  } while ((line = strsep(&buf, "\n")) != NULL);
+  }
 
-  return 0;
+  return state->priority;
 }
 
 void doneConfigParser(struct ConfigParserState *state)
@@ -148,7 +146,7 @@ void setConfigPriority(int priority,
 			     struct ConfigParserState *state)
 {
   if (state != NULL) {
-    state->priority = priority;    
+    state->priority = priority;
   }
 }
 void setConfigDefaultPriority(struct ConfigParserState *state)
@@ -156,5 +154,5 @@ void setConfigDefaultPriority(struct ConfigParserState *state)
   if (state != NULL) {
     state->priority = 0;
     state->line_number = -1;
-  }  
+  }
 }
