@@ -25,7 +25,7 @@ static void invalid_binary()
 	CU_ASSERT_PTR_NULL(data);
 
 	ret = loadDefaultAlternativesForBinary("no_size_alternatives", &data);
-	CU_ASSERT_EQUAL(ret, 0);
+	CU_ASSERT_EQUAL(ret, -1);
 	CU_ASSERT_PTR_NULL(data);
 }
 
@@ -79,6 +79,7 @@ int main()
 	CU_ADD_TEST(suite, multiple_alternative_binary);
 
 	addParserTests();
+	addConfigParserTests();
 
 	CU_basic_run_tests();
 	CU_cleanup_registry();

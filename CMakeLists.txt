@@ -3,7 +3,8 @@ project(libalternatives)
 
 set(SOURCES
     src/libalternatives.c
-    src/parser.c
+    src/options_parser.c
+    src/config_parser.c
 )
 
 add_compile_options(-Wall -Wextra -Wpedantic)
@@ -27,7 +28,7 @@ target_compile_definitions(test_alternatives PRIVATE
 set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
 
 
-add_executable(units test/test.c test/parser_tests.c)
+add_executable(units test/test.c test/options_parser_tests.c test/config_parser_tests.c )
 target_link_libraries(units PUBLIC cunit)
 target_link_libraries(units PUBLIC test_alternatives)
 set_property(TARGET test_alternatives alternatives PROPERTY C_STANDARD 99)
