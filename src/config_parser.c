@@ -55,8 +55,7 @@ struct ConfigParserState* initConfigParser(const char *binary_name)
   return state;
 }
 
-int parseConfigData(const char *buffer,
-		    struct ConfigParserState *state)
+int parseConfigData(const char *buffer, struct ConfigParserState *state)
 {
   int line_number = 0;
   /* strsep changes the buffer. So we need a copy of it.*/
@@ -77,8 +76,8 @@ int parseConfigData(const char *buffer,
       free(raw_key);
       if (strcmp(key,state->binary_name) != 0)
       {
-	free(key);
-	continue; /* not the binary key */
+        free(key);
+        continue; /* not the binary key */
       }
       free(key);
     } else {
@@ -97,10 +96,10 @@ int parseConfigData(const char *buffer,
     char *endptr = NULL;
     long int val = strtol(raw_value, &endptr, 10);
     if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
-	|| (errno != 0 && val == 0)
-	|| (endptr == raw_value)   /* No digits were found. */
-	|| (*trim(endptr) != '\0') /* There is still a rest */
-  || val <= 0) {
+        || (errno != 0 && val == 0)
+        || (endptr == raw_value)   /* No digits were found. */
+        || (*trim(endptr) != '\0') /* There is still a rest */
+        || val <= 0) {
       free(raw_value);
       continue;
     }
@@ -142,8 +141,7 @@ const char *getConfigBinaryName(const struct ConfigParserState *state)
   return state->binary_name;
 }
 
-void setConfigPriority(int priority,
-			     struct ConfigParserState *state)
+void setConfigPriority(int priority, struct ConfigParserState *state)
 {
   if (state != NULL) {
     state->priority = priority;
