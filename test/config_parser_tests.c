@@ -12,7 +12,12 @@ struct ConfigParserState *state;
 static void resultsWithoutParsing()
 {
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
+  doneConfigParser(state);
+}
+
+static void resultsWithoutParsingNULLBinary()
+{
+  CU_ASSERT_PTR_NULL(state = initConfigParser(NULL));
   doneConfigParser(state);
 }
 
@@ -20,7 +25,6 @@ static void parsingEmptyData()
 {
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData("", state), 0);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1)
   doneConfigParser(state);
 }
 
@@ -30,7 +34,6 @@ static void parsingSimpleEntry()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),10);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), 1);
   doneConfigParser(state);
 }
 
@@ -40,7 +43,6 @@ static void parsingGarbageData1()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(data, state), 0);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -50,7 +52,6 @@ static void parsingGarbageData2()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),0);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -60,7 +61,6 @@ static void parsingGarbageData3()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),0);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -70,7 +70,6 @@ static void parsingFalseEntry()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(simple_entry, state),0);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -80,7 +79,6 @@ static void parsingWithOtherEntries()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -90,7 +88,6 @@ static void parsingWithWhitespaces1()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),50);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -100,7 +97,6 @@ static void parsingWithWhitespaces2()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),56);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
   doneConfigParser(state);
 }
 
@@ -110,7 +106,6 @@ static void parsingWithComment()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),57);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), 1);
   doneConfigParser(state);
 }
 
@@ -120,7 +115,6 @@ static void parsingNoneDigitalValue()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),0);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
   doneConfigParser(state);
 }
 
@@ -130,32 +124,6 @@ static void  duplicateUseFirstEntry()
 
   CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
   CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), 3);
-  doneConfigParser(state);
-}
-
-static void SetGetResetEntry()
-{
-  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
-  CU_ASSERT_EQUAL(getConfigPriority(state), 0);
-  setConfigPriority(2,state);
-  CU_ASSERT_EQUAL(getConfigPriority(state), 2);
-  setConfigDefaultPriority(state);
-  CU_ASSERT_EQUAL(getConfigPriority(state), 0);
-  CU_ASSERT_EQUAL(strcmp(getConfigBinaryName(state), "editor"), 0);
-  doneConfigParser(state);
-}
-
-static void SetGetResetNullEntry()
-{
-  state = NULL;
-  getConfigLineNr(state);
-  CU_ASSERT_EQUAL(getConfigPriority(state), -1);
-  CU_ASSERT_EQUAL(getConfigLineNr(state), -1);
-  getConfigBinaryName(state);
-  setConfigPriority(2,state);
-  setConfigDefaultPriority(state);
   doneConfigParser(state);
 }
 
@@ -173,6 +141,92 @@ static void invalidNegativePriority()
   CU_ASSERT_EQUAL(parseConfigData(editor_with_space, state), 11);
 }
 
+static void setEntryInTheMiddle()
+{
+  const char entries[] = "line1 \n line 2 \neditor=5\n line 3";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  const char *buffer = setBinaryPriorityAndReturnUpdatedConfig(22,state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "line1 \n line 2 \neditor=22\n line 3"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 22);
+  doneConfigParser(state);
+}
+
+static void setEntryAtTheEnd()
+{
+  const char entries[] = "line1 \n line 2 \n line 3\neditor=5";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  const char *buffer = setBinaryPriorityAndReturnUpdatedConfig(333,state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "line1 \n line 2 \n line 3\neditor=333"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 333);
+  doneConfigParser(state);
+}
+
+static void setEntryAtTheBeginning()
+{
+  const char entries[] = "editor=555\n line 2 \n line 3\n";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),555);
+  const char *buffer = setBinaryPriorityAndReturnUpdatedConfig(4,state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "editor=4\n line 2 \n line 3\n"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 4);
+  doneConfigParser(state);
+}
+
+static void setNewEntry()
+{
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  const char *buffer = setBinaryPriorityAndReturnUpdatedConfig(4,state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "editor=4"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 4);
+  doneConfigParser(state);
+}
+
+static void setEntryRemoveDoubleEntry1()
+{
+  const char entries[] = "line1 \n line 2 \neditor=5\n line 3\neditor=7";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  const char *buffer = setBinaryPriorityAndReturnUpdatedConfig(22,state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "line1 \n line 2 \neditor=22\n line 3"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 22);
+  doneConfigParser(state);
+}
+
+static void setEntryRemoveDoubleEntry2()
+{
+  const char entries[] = "line1 \neditor=2\n line 2 \neditor=5\n line 3";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),2);
+  const char *buffer = setBinaryPriorityAndReturnUpdatedConfig(22,state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "line1 \neditor=22\n line 2 \n line 3"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 22);
+  doneConfigParser(state);
+}
+
+static void setWithEmptyArguments()
+{
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_PTR_NULL(setBinaryPriorityAndReturnUpdatedConfig(0,state));
+  CU_ASSERT_PTR_NULL(setBinaryPriorityAndReturnUpdatedConfig(1,NULL));
+}
+
+static void resetEntries()
+{
+  const char entries[] = "editor=5\nline1 \n line 2 \neditor=5\n line 3\neditor=6";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  const char *buffer = resetToDefaultPriorityAndReturnUpdatedConfig(state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "line1 \n line 2 \n line 3"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 0);
+  doneConfigParser(state);
+}
+static void resetNULLEntry()
+{
+  CU_ASSERT_PTR_NULL(resetToDefaultPriorityAndReturnUpdatedConfig(NULL));
+}
+
 void addConfigParserTests()
 {
   CU_pSuite tests = CU_add_suite_with_setup_and_teardown("ConfigParser",
@@ -182,6 +236,7 @@ void addConfigParserTests()
 							 (void(*)(void))noop_function);
 
   CU_ADD_TEST(tests, resultsWithoutParsing);
+  CU_ADD_TEST(tests, resultsWithoutParsingNULLBinary);
   CU_ADD_TEST(tests, parsingEmptyData);
   CU_ADD_TEST(tests, parsingGarbageData1);
   CU_ADD_TEST(tests, parsingGarbageData2);
@@ -194,8 +249,15 @@ void addConfigParserTests()
   CU_ADD_TEST(tests, parsingNoneDigitalValue);
   CU_ADD_TEST(tests, duplicateUseFirstEntry);
   CU_ADD_TEST(tests, parsingWithComment);
-  CU_ADD_TEST(tests, SetGetResetEntry);
-  CU_ADD_TEST(tests, SetGetResetNullEntry);
   CU_ADD_TEST(tests, similarBinaries);
   CU_ADD_TEST(tests, invalidNegativePriority);
+  CU_ADD_TEST(tests, setEntryInTheMiddle);
+  CU_ADD_TEST(tests, setEntryAtTheEnd);
+  CU_ADD_TEST(tests, setEntryAtTheBeginning);
+  CU_ADD_TEST(tests, setNewEntry);
+  CU_ADD_TEST(tests, setEntryRemoveDoubleEntry1);
+  CU_ADD_TEST(tests, setEntryRemoveDoubleEntry2);
+  CU_ADD_TEST(tests, setWithEmptyArguments);
+  CU_ADD_TEST(tests, resetEntries);
+  CU_ADD_TEST(tests, resetNULLEntry);
 }

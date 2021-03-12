@@ -67,7 +67,8 @@ const char* resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserStat
 /** @brief Initialize an ConfigParserState object with a given binary name.
  *
  * @param binary_name Binary name (group name).
- * @return Pointer of an allocated ConfigParserState object.
+ * @return Pointer of an allocated ConfigParserState object or NULL if
+ *         binary_name is NULL.
  */
 struct ConfigParserState* initConfigParser(const char *binary_name);
 
@@ -92,23 +93,21 @@ void doneConfigParser(struct ConfigParserState *state);
  * @param priority Priority which has to be set.
  * @param state Reference on an ConfigParserState object in which the
  *              priority will be set.
+ * @return Complete string buffer (with other values), changed value included.
+ *         NULL if state has been NULL or the priority has been <= 0.
  */
-void setConfigPriority(int  priority, struct ConfigParserState *state);
+const char* setBinaryPriorityAndReturnUpdatedConfig(int priority, struct ConfigParserState *state);
+
 
 /** @brief Set default priority for a binary name in the given state struct.
  *
  * @param state Reference on an ConfigParserState object in which the
  *              priority will be set.
+ * @return Complete string buffer (with other values).
+ *         NULL if state has been NULL.
+ *         The key/value defined in state has been removed.
  */
-void setConfigDefaultPriority(struct ConfigParserState *state);
-
-/** @brief Get the line number where the binary_name priority has been parsed.
- *
- * @param state Reference on an ConfigParserState object in which the
- *              line number is set.
- * @return line number
- */
-int getConfigLineNr(const struct ConfigParserState *state);
+const char* resetToDefaultPriorityAndReturnUpdatedConfig(struct ConfigParserState *state);
 
 /** @brief Get priority for a binary name in the given state struct.
  *
