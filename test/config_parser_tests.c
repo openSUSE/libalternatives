@@ -222,6 +222,21 @@ static void resetEntries()
   CU_ASSERT_EQUAL(getConfigPriority(state), 0);
   doneConfigParser(state);
 }
+
+static void setPriorityMultipleTimes()
+{
+  const char entries[] = "editor=5\nline1 \n line 2 \neditor=5\n line 3\neditor=6";
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),5);
+  const char *b1 = setBinaryPriorityAndReturnUpdatedConfig(10, state);
+  CU_ASSERT_EQUAL(strcmp(b1, "editor=10\nline1 \n line 2 \n line 3"), 0);
+  const char *buffer = resetToDefaultPriorityAndReturnUpdatedConfig(state);
+  CU_ASSERT_EQUAL(strcmp(buffer, "line1 \n line 2 \n line 3"), 0);
+  CU_ASSERT_EQUAL(getConfigPriority(state), 0);
+//  CU_ASSERT_EQUAL(strcmp(b1, "editor=10\nline1 \n line 2 \n line 3"), 0);
+  doneConfigParser(state);
+}
+
 static void resetNULLEntry()
 {
   CU_ASSERT_PTR_NULL(resetToDefaultPriorityAndReturnUpdatedConfig(NULL));
@@ -259,5 +274,6 @@ void addConfigParserTests()
   CU_ADD_TEST(tests, setEntryRemoveDoubleEntry2);
   CU_ADD_TEST(tests, setWithEmptyArguments);
   CU_ADD_TEST(tests, resetEntries);
+  CU_ADD_TEST(tests, setPriorityMultipleTimes);
   CU_ADD_TEST(tests, resetNULLEntry);
 }

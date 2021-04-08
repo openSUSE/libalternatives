@@ -14,6 +14,14 @@ static int suite_cleanup()
 	return 0;
 }
 
+static void free_null()
+{
+	struct AlternativeLink *data = NULL;
+
+	freeAlternatives(&data);
+	CU_ASSERT_PTR_NULL(data);
+}
+
 static void invalid_binary()
 {
 	int ret;
@@ -25,7 +33,7 @@ static void invalid_binary()
 	CU_ASSERT_PTR_NULL(data);
 
 	ret = loadDefaultAlternativesForBinary("no_size_alternatives", &data);
-	// CU_ASSERT_EQUAL(ret, -1);
+	CU_ASSERT_EQUAL(ret, -1);
 	CU_ASSERT_PTR_NULL(data);
 }
 
@@ -44,8 +52,8 @@ static void single_alternative_binary()
 
 	CU_ASSERT_EQUAL(data[1].type, ALTLINK_EOL);
 
-	free((void*)data->target);
-	free(data);
+	freeAlternatives(&data);
+	CU_ASSERT_PTR_NULL(data);
 }
 
 static void multiple_alternative_binary()
@@ -62,8 +70,9 @@ static void multiple_alternative_binary()
 	CU_ASSERT_EQUAL(data->type, ALTLINK_BINARY);
 
 	CU_ASSERT_EQUAL(data[1].type, ALTLINK_EOL);
-	free((void*)data->target);
-	free(data);
+
+	freeAlternatives(&data);
+	CU_ASSERT_PTR_NULL(data);
 }
 
 
@@ -75,6 +84,7 @@ int main()
 	CU_initialize_registry();
 
 	CU_pSuite suite = CU_add_suite("libalternatives test suite", suite_init, suite_cleanup);
+	CU_ADD_TEST(suite, free_null);
 	CU_ADD_TEST(suite, invalid_binary);
 	CU_ADD_TEST(suite, single_alternative_binary);
 	CU_ADD_TEST(suite, multiple_alternative_binary);
