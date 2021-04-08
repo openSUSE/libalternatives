@@ -293,12 +293,12 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 	const char *config_home = secure_getenv("XDG_CONFIG_HOME");
 	const char *config_path = NULL;
 	if (config_home != NULL) {
-		const char config_filename[] = "/libalternatives.conf";
+		const char config_filename[] = "/" CONFIG_FILENAME;
 		config_path = concat_str_safe(config_home, strlen(config_home), config_filename, sizeof(config_filename));
 	}
 	else {
 		config_home = secure_getenv("HOME");
-		const char config_filename[] = "/.config/libalternatives.conf";
+		const char config_filename[] = "/.config/" CONFIG_FILENAME;
 		if (config_home != NULL)
 			config_path = concat_str_safe(config_home, strlen(config_home), config_filename, sizeof(config_filename));
 	}
@@ -330,8 +330,10 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 	return ret;
 }
 
-int execDefault(char *argv[], __attribute__((unused)) int argc)
+int execDefault(char *argv[])
 {
+	argv[0]=basename(argv[0]);
+
 	struct AlternativeLink *alts;
 	checkEnvDebug();
 	loadAlternatives(argv[0], &alts);
@@ -348,7 +350,7 @@ int execDefault(char *argv[], __attribute__((unused)) int argc)
 	}
 
 	if (IS_DEBUG)
-		fprintf(stderr, "execDefault() failed wit target %s\n", (alts ? alts->target : NULL));
+		fprintf(stderr, "execDefault() failed with target %s\n", (alts ? alts->target : NULL));
 	return -1;
 }
 

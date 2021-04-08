@@ -9,13 +9,16 @@ set(SOURCES
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+set_property(GLOBAL PROPERTY VERSION 0.0.1)
+
 add_library(alternatives SHARED ${SOURCES})
+set_property(TARGET alternatives PROPERTY SOVERSION 1)
 set_property(TARGET alternatives PROPERTY
     ETC_PATH test)
-target_compile_definitions(alternatives PRIVATE
-    ETC_PATH="TEST"
-    CONFIG_DIR="TEST"
-    CONFIG_FILENAME="TEST"
+target_compile_definitions(alternatives PUBLIC
+    ETC_PATH="/etc"
+    CONFIG_DIR="/usr/share/libalternatives"
+    CONFIG_FILENAME="libalternatives.conf"
 )
 
 add_library(test_alternatives STATIC ${SOURCES})
@@ -47,3 +50,10 @@ setup_target_for_coverage_lcov(
     EXCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/test/*
 )
 
+
+# utilities
+add_executable(libalternatives_default
+    src/default_helper.c
+)
+target_link_libraries(libalternatives_default PUBLIC alternatives)
+set_property(TARGET libalternatives_default PROPERTY SKIP_BUILD_RPATH TRUE)

@@ -32,5 +32,5 @@ int loadConfigOverride(const char *binary_name, const char *config_path);
 void freeAlternatives(struct AlternativeLink **);
 
 // convenience
-int execDefault(char *argv[], int argc); // binary in argv[0]
+int execDefault(char *argv[]); // binary in argv[0]
 char* defaultManpage(const char *binary_name);
