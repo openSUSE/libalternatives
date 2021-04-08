@@ -11,16 +11,18 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 
 add_library(alternatives SHARED ${SOURCES})
 set_property(TARGET alternatives PROPERTY
-    ALTERNATIVES_PATH test)
+    ETC_PATH test)
 target_compile_definitions(alternatives PRIVATE
-    ALTERNATIVES_PATH="TEST"
+    ETC_PATH="TEST"
     CONFIG_DIR="TEST"
+    CONFIG_FILENAME="TEST"
 )
 
 add_library(test_alternatives STATIC ${SOURCES})
 target_compile_definitions(test_alternatives PRIVATE
-    ALTERNATIVES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/test/test_config"
+    ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/test/test_config"
     CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/test_defaults"
+    CONFIG_FILENAME="libalternatives.conf"
 )
 
 
@@ -28,7 +30,11 @@ target_compile_definitions(test_alternatives PRIVATE
 set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
 
 
-add_executable(units test/test.c test/options_parser_tests.c test/config_parser_tests.c )
+add_executable(units
+    test/test.c
+    test/options_parser_tests.c
+    test/config_parser_tests.c
+)
 target_link_libraries(units PUBLIC cunit)
 target_link_libraries(units PUBLIC test_alternatives)
 set_property(TARGET test_alternatives alternatives PROPERTY C_STANDARD 99)
