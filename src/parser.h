@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+extern int libalternatives_debug;
+
 struct AlternativeLink;
 struct OptionsParserState;
 

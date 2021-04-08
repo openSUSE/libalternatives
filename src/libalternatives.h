@@ -16,15 +16,21 @@ struct AlternativeLink
 };
 
 
+// loads highest priority alternative
 int loadDefaultAlternativesForBinary(const char *binary_name, struct AlternativeLink **alternatives);
+
+int loadSpecificAlternativeForBinary(const char *binary_name, int prio, struct AlternativeLink **alternatives);
 
 // int listAllAlternativesForBinary(const char *binary_name, int **alts);
 // int loadAlternativeForBinary(int priority, const char *binary_name, struct AlternativeLink **alternatives);
 
+// returns config override (priority) from a given config file
+// 0 otherwise, or -1 on error
+int loadConfigOverride(const char *binary_name, const char *config_path);
 
 // convenience
-// freeAlternatives(struct AlternativeLink **);
+void freeAlternatives(struct AlternativeLink **);
 
 // convenience
-// int execDefault(char *argv[], int argc); // binary in argv[0]
-// char* defaultManpage(const char *binary_name);
+int execDefault(char *argv[], int argc); // binary in argv[0]
+char* defaultManpage(const char *binary_name);
