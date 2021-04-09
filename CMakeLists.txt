@@ -48,12 +48,13 @@ setup_target_for_coverage_lcov(
     NAME coverage
     EXECUTABLE units
     EXCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/test/*
+    INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*
 )
 
 
 # utilities
 add_executable(libalternatives_default
-    src/default_helper.c
+    src/utils/default_helper.c
 )
 target_link_libraries(libalternatives_default PUBLIC alternatives)
 set_property(TARGET libalternatives_default PROPERTY SKIP_BUILD_RPATH TRUE)
