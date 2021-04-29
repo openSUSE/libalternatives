@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(libalternatives)
+project(libalternatives C)
 
 set(SOURCES
     src/libalternatives.c
