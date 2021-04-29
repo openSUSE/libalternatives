@@ -168,6 +168,11 @@ Alternatives: 0\n\
 Binary: one_alternative\n\
 Alternatives: 1\n\
   Priority: 90*  Target: /usr/bin/ls\n\
+---\n\
+Binary: test\n\
+Alternatives: 2\n\
+  Priority: 10   Target: /usr/bin/false\n\
+  Priority: 20*  Target: /usr/bin/true\n\
 "), 0);
 }
 

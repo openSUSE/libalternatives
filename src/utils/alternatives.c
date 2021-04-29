@@ -204,7 +204,6 @@ static int processOptions(int argc, char *argv[])
 				if (!optarg && optind < argc && argv[optind] != NULL && argv[optind][0] != '-') {
 					program = argv[optind++];
 				}
-				fprintf(stderr, "%c filter: %s\n", (char)opt, program);
 				break;
 			case 'p': {
 				char *ptr;
