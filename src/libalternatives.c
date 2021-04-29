@@ -569,13 +569,19 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 	int priority = loadDefaultConfigOverride(binary_name, NULL);
 
 	int ret = 0;
-	if (priority > 0)
+	if (priority > 0) {
 		ret = loadSpecificAlternativeForBinary(binary_name, priority, alts);
-	else
+		if (unlikely(ret != 0)) {
+			if (IS_DEBUG)
+				fprintf(stderr, "failed to load override priority %d - reseting to default", priority);
+			priority = 0;
+		}
+	}
+	if (priority == 0)
 		ret = loadHighestAlternativesForBinary(binary_name, alts);
 
 	if (IS_DEBUG)
-		fprintf(stderr, "loaded alternative for the priority: %d\n", ret);
+		fprintf(stderr, "loaded alternatives?: %d\n", ret);
 
 	return ret;
 }
