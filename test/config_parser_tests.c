@@ -45,6 +45,14 @@ static void parsingEmptyData()
   doneConfigParser(state);
 }
 
+static void parseEmptyDataAndAddSingleEntry()
+{
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData("", state), 0);
+  CU_ASSERT_EQUAL(strcmp(setBinaryPriorityAndReturnUpdatedConfig(20, state), "editor=20"), 0)
+  doneConfigParser(state);
+}
+
 static void parsingSimpleEntry()
 {
   const char simple_entry[] = "editor=10";
@@ -293,4 +301,5 @@ void addConfigParserTests()
   CU_ADD_TEST(tests, resetEntries);
   CU_ADD_TEST(tests, setPriorityMultipleTimes);
   CU_ADD_TEST(tests, resetNULLEntry);
+  CU_ADD_TEST(tests, parseEmptyDataAndAddSingleEntry);
 }

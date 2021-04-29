@@ -15,6 +15,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <sys/types.h>
+
 enum AlternativeLinkType
 {
 	ALTLINK_BINARY = 0,
@@ -32,16 +34,28 @@ struct AlternativeLink
 
 
 // loads highest priority alternative
-int loadDefaultAlternativesForBinary(const char *binary_name, struct AlternativeLink **alternatives);
+int loadHighestAlternativesForBinary(const char *binary_name, struct AlternativeLink **alternatives);
 
 int loadSpecificAlternativeForBinary(const char *binary_name, int prio, struct AlternativeLink **alternatives);
 
-// int listAllAlternativesForBinary(const char *binary_name, int **alts);
-// int loadAlternativeForBinary(int priority, const char *binary_name, struct AlternativeLink **alternatives);
+int listAllAvailableBinaries(char ***binaries, size_t *size);
+int listAllAlternativesForBinary(const char *binary_name, int **alts, size_t *size);
 
 // returns config override (priority) from a given config file
 // 0 otherwise, or -1 on error
 int loadConfigOverride(const char *binary_name, const char *config_path);
+
+// return 0 on success and -1 on error
+int setConfigOverride(const char *binary_name, int priority, const char *config_path);
+
+// returns config override (priority) from default config files
+// set src => 1 for system, 2 for user
+// returns 0 if not overriden or -1 on error
+int loadDefaultConfigOverride(const char *binary_name, int *src);
+
+// config filenames, they may or may not exist
+const char* systemConfigFile();
+const char* userConfigFile();
 
 // convenience
 void freeAlternatives(struct AlternativeLink **);
@@ -49,3 +63,6 @@ void freeAlternatives(struct AlternativeLink **);
 // convenience
 int execDefault(char *argv[]); // binary in argv[0]
 char* defaultManpage(const char *binary_name);
+
+// for unit testing only, remove from library symbols later
+

@@ -44,12 +44,12 @@ static void invalid_binary()
 	int ret;
 	struct AlternativeLink *data = NULL;
 
-	ret = loadDefaultAlternativesForBinary("not_real_binary_binary", &data);
+	ret = loadHighestAlternativesForBinary("not_real_binary_binary", &data);
 	CU_ASSERT_EQUAL(ret, -1);
 	CU_ASSERT_EQUAL(errno, ENOENT);
 	CU_ASSERT_PTR_NULL(data);
 
-	ret = loadDefaultAlternativesForBinary("no_size_alternatives", &data);
+	ret = loadHighestAlternativesForBinary("no_size_alternatives", &data);
 	CU_ASSERT_EQUAL(ret, -1);
 	CU_ASSERT_PTR_NULL(data);
 }
@@ -59,7 +59,7 @@ static void single_alternative_binary()
 	size_t ret;
 	struct AlternativeLink *data;
 
-	ret = loadDefaultAlternativesForBinary("one_alternative", &data);
+	ret = loadHighestAlternativesForBinary("one_alternative", &data);
 	CU_ASSERT_EQUAL(ret, 0);
 	CU_ASSERT_PTR_NOT_NULL(data);
 
@@ -78,7 +78,7 @@ static void multiple_alternative_binary()
 	size_t ret;
 	struct AlternativeLink *data;
 
-	ret = loadDefaultAlternativesForBinary("multiple_alts", &data);
+	ret = loadHighestAlternativesForBinary("multiple_alts", &data);
 	CU_ASSERT_EQUAL(ret, 0);
 	CU_ASSERT_PTR_NOT_NULL(data);
 
@@ -95,6 +95,7 @@ static void multiple_alternative_binary()
 
 extern void addOptionsParserTests();
 extern void addConfigParserTests();
+extern void addAlternativesAppTests();
 
 int main()
 {
@@ -108,6 +109,7 @@ int main()
 
 	addOptionsParserTests();
 	addConfigParserTests();
+	addAlternativesAppTests();
 
 	CU_basic_run_tests();
 	CU_cleanup_registry();

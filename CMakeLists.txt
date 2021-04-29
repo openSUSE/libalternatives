@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8)
 project(libalternatives)
 
 set(SOURCES
@@ -21,11 +21,16 @@ target_compile_definitions(alternatives PUBLIC
     CONFIG_FILENAME="libalternatives.conf"
 )
 
-add_library(test_alternatives STATIC ${SOURCES})
+# test library also contains utilities that will be tested
+add_library(test_alternatives STATIC
+    ${SOURCES}
+    src/utils/alternatives.c
+)
 target_compile_definitions(test_alternatives PRIVATE
-    ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/test/test_config"
+    ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/test"
     CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/test_defaults"
     CONFIG_FILENAME="libalternatives.conf"
+    UNITTESTS=1
 )
 
 
@@ -37,6 +42,7 @@ add_executable(units
     test/test.c
     test/options_parser_tests.c
     test/config_parser_tests.c
+    test/alternatives_tests.c
 )
 target_link_libraries(units PUBLIC cunit)
 target_link_libraries(units PUBLIC test_alternatives)
@@ -48,7 +54,6 @@ setup_target_for_coverage_lcov(
     NAME coverage
     EXECUTABLE units
     EXCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/test/*
-    INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*
 )
 
 
@@ -58,3 +63,10 @@ add_executable(libalternatives_default
 )
 target_link_libraries(libalternatives_default PUBLIC alternatives)
 set_property(TARGET libalternatives_default PROPERTY SKIP_BUILD_RPATH TRUE)
+
+add_executable(update_alternatives
+    src/utils/alternatives.c
+)
+target_link_libraries(update_alternatives PUBLIC alternatives)
+set_property(TARGET update_alternatives PROPERTY SKIP_BUILD_RPATH TRUE)
+set_target_properties(update_alternatives PROPERTIES OUTPUT_NAME alternatives)
