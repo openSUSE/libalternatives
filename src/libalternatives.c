@@ -615,4 +615,19 @@ char* defaultManpage(const char *binary_name)
 	struct AlternativeLink *alts;
 	checkEnvDebug();
 	loadAlternatives(binary_name, &alts);
+
+	char *manpage = NULL;
+
+	if (alts) {
+		while (alts->type != ALTLINK_EOL) {
+			if (alts->type == ALTLINK_MANPAGE) {
+				const char *manpage = strdup(alts->target);
+				break;
+			}
+		}
+
+		freeAlternatives(&alts);
+	}
+
+	return manpage;
 }
