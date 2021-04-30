@@ -25,8 +25,8 @@ static int noop_function()
 	return 0;
 }
 
-struct OptionsParserState *state;
-struct AlternativeLink *result = NULL;
+static struct OptionsParserState *state;
+static struct AlternativeLink *result = NULL;
 
 static void freeResults()
 {

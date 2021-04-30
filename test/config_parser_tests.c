@@ -24,7 +24,7 @@ static int noop_function()
   return 0;
 }
 
-struct ConfigParserState *state;
+static struct ConfigParserState *state;
 
 static void resultsWithoutParsing()
 {
