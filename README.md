@@ -1,5 +1,5 @@
-libalternatives
-===============
+libalternative
+==============
 
 A configurable alternatives for update-alternatives.
 
@@ -64,7 +64,7 @@ To override this behaviour, see *alternatives(1)*
 
 Notes
 -----
-`libalternatives` is NOT aimed to be a replacement for
+`libalternative` is NOT aimed to be a replacement for
 `update-alternatives`. It is meant as an alternative that tends to stay
 out of the way and provides more flexibility and stability for users and
 the package maintainers.
