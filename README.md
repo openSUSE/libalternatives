@@ -36,10 +36,12 @@ preferences file that overrides default alternative preference.
 
 Packages need to ship their package preferences in following format,
 
-    /usr/share/alternatives/*binary*/*pref*.conf
+	/usr/share/alternatives/<binary>/<pref>.conf
+
 where
-	- *binary* is the alternative provided
-	- *pref* is a numeric priority
+
++ *binary* is the alternative provided
++ *pref* is a numeric priority
 
 The config file must be of the following format:
 
