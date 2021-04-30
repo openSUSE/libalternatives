@@ -14,16 +14,17 @@ installed, the admin can then make one accessible as an `editor`
 application.
 
 The simple principle behind `update-alternatives` also is its main
-drawbacks. Since it only manages symlinks, the preferred configuration
+drawback. Since it only manages symlinks, the preferred configuration
 is only managed per system and cannot be altered per user. Furthermore,
-if an application requires additional processing prior via the default
-handler, this is no the domain of `update-alternatives`.
+if an application requires additional processing prior to execution via
+the default handler, this is outside the domain of `update-alternatives`.
 
 Another major drawback of `update-alternatives` is that it a state
 system and this state is modified or updated at installation time. If
 the state of the running system is kept separate from the installation
 state (eg. multiple snapshots of parts of the system), the symlinks
-state can become stale or simply wrong.
+state can become stale or simply wrong without a *possibility* of a
+fallback mechanism.
 
 Description
 -----------
@@ -33,7 +34,8 @@ config file provided by packages that describe the alternatives
 provided. The second config file is either a system or a user
 preferences file that overrides default alternative preference.
 
-Packages need to ship their package preferences in,
+Packages need to ship their package preferences in following format,
+
     /usr/share/alternatives/*binary*/*pref*.conf
 where
 	- *binary* is the alternative provided
@@ -44,7 +46,7 @@ The config file must be of the following format:
 	binary=<absolute path to binary>
 	man=<manpage>
 
-*binary* entry is mandatory.
+where *binary* entry is mandatory.
 
 Typically, the *binary* can then be a symlink to
 */usr/bin/alternatives_default* that will **exec()** the configured binary
@@ -57,6 +59,13 @@ For example:
 	man=vim.1
 
 To override this behaviour, see *alternatives(1)*
+
+Notes
+-----
+`libalternatives` is NOT aimed to be a replacement for
+`update-alternatives`. It is meant as an alternative that tends to stay
+out of the way and provides more flexibility and stability for users and
+the package maintainers.
 
 API
 ---
