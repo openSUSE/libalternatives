@@ -9,7 +9,7 @@ include(GNUInstallDirs)
 option(ENABLE_COVERAGE "Add coverage target" OFF)
 
 set(CONFIG_DIR
-    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}"
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}"
     CACHE PATH
     "Root path for alternatives configs"
 )
