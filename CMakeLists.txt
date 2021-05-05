@@ -4,6 +4,8 @@ project(libalternatives
     LANGUAGES C
 )
 
+option(ENABLE_COVERAGE "Add coverage target" OFF)
+
 set(SOURCES
     src/libalternatives.c
     src/options_parser.c
@@ -38,10 +40,8 @@ target_compile_definitions(test_libalternatives PRIVATE
     UNITTESTS=1
 )
 
-
 # disable the <libname>_EXPORTS
 set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
-
 
 add_executable(units
     test/test.c
@@ -53,14 +53,15 @@ target_link_libraries(units PUBLIC cunit)
 target_link_libraries(units PUBLIC test_libalternatives)
 set_property(TARGET test_libalternatives alternatives PROPERTY C_STANDARD 99)
 
-include(./cmake/CodeCoverage.cmake)
-APPEND_COVERAGE_COMPILER_FLAGS()
-setup_target_for_coverage_lcov(
-    NAME coverage
-    EXECUTABLE units
-    EXCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/test/*
-)
-
+if(ENABLE_COVERAGE)
+    include(./cmake/CodeCoverage.cmake)
+    APPEND_COVERAGE_COMPILER_FLAGS()
+    setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE units
+        EXCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/test/*
+    )
+endif()
 
 # utilities
 add_executable(libalternatives_default
