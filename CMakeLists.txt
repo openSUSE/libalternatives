@@ -7,6 +7,10 @@ set(SOURCES
     src/config_parser.c
 )
 
+set(HEADERS
+    src/libalternatives.h
+)
+
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 set_property(GLOBAL PROPERTY VERSION 0.0.1)
@@ -70,3 +74,9 @@ add_executable(update_alternatives
 target_link_libraries(update_alternatives PUBLIC alternatives)
 set_property(TARGET update_alternatives PROPERTY SKIP_BUILD_RPATH TRUE)
 set_target_properties(update_alternatives PROPERTIES OUTPUT_NAME alternatives)
+
+
+install(TARGETS libalternatives_default DESTINATION bin)
+install(TARGETS update_alternatives     DESTINATION bin)
+install(TARGETS alternatives            DESTINATION lib)
+install(FILES ${HEADERS}                DESTINATION include)
