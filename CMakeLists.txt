@@ -4,7 +4,16 @@ project(libalternatives
     LANGUAGES C
 )
 
+include(GNUInstallDirs)
+
 option(ENABLE_COVERAGE "Add coverage target" OFF)
+
+set(CONFIG_DIR
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}"
+    CACHE PATH
+    "Root path for alternatives configs"
+)
+set(CONFIG_FILENAME "libalternatives.conf" CACHE STRING "Configueration filename in the SYSCONFDIR")
 
 set(SOURCES
     src/libalternatives.c
@@ -23,9 +32,9 @@ set_property(TARGET alternatives PROPERTY SOVERSION 1)
 set_property(TARGET alternatives PROPERTY
     ETC_PATH test)
 target_compile_definitions(alternatives PUBLIC
-    ETC_PATH="/etc"
-    CONFIG_DIR="/usr/share/libalternatives"
-    CONFIG_FILENAME="libalternatives.conf"
+    ETC_PATH="${CMAKE_INSTALL_SYSCONFDIR}"
+    CONFIG_DIR="${CONFIG_DIR}"
+    CONFIG_FILENAME="${CONFIG_FILENAME}"
 )
 
 # test library also contains utilities that will be tested
@@ -36,7 +45,7 @@ add_library(test_libalternatives STATIC
 target_compile_definitions(test_libalternatives PRIVATE
     ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/test"
     CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/test_defaults"
-    CONFIG_FILENAME="libalternatives.conf"
+    CONFIG_FILENAME="${CONFIG_FILENAME}"
     UNITTESTS=1
 )
 
@@ -77,8 +86,7 @@ target_link_libraries(AlternativesHelper PUBLIC alternatives)
 set_property(TARGET AlternativesHelper PROPERTY SKIP_BUILD_RPATH TRUE)
 set_target_properties(AlternativesHelper PROPERTIES OUTPUT_NAME alternatives)
 
-
 #install(TARGETS libalternatives_default DESTINATION bin)
 install(TARGETS AlternativesHelper)
 install(TARGETS alternatives)
-install(FILES ${HEADERS}          DESTINATION include)
+install(FILES ${HEADERS} DESTINATION include)
