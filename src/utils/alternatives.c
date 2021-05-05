@@ -243,9 +243,12 @@ static int processOptions(int argc, char *argv[])
 
 #ifdef UNITTESTS
 int alternatives_app_main(int argc, char *argv[])
+{
 #else
 int main(int argc, char *argv[])
-#endif
 {
+	if (strcmp(binname, basename(argv[0])) != 0)
+		return execDefault(argv);
+#endif
 	return processOptions(argc, argv);
 }
