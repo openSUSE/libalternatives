@@ -5,6 +5,7 @@ project(libalternatives
 )
 
 include(GNUInstallDirs)
+include(CTest)
 
 option(ENABLE_COVERAGE "Add coverage target" OFF)
 
@@ -14,53 +15,10 @@ set(CONFIG_DIR
     "Root path for alternatives configs"
 )
 set(CONFIG_FILENAME "libalternatives.conf" CACHE STRING "Configueration filename in the SYSCONFDIR")
-
-set(SOURCES
-    src/libalternatives.c
-    src/options_parser.c
-    src/config_parser.c
-)
-
-set(HEADERS
-    src/libalternatives.h
-)
-
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_library(alternatives SHARED "${SOURCES}")
-set_property(TARGET alternatives PROPERTY SOVERSION 1)
-set_property(TARGET alternatives PROPERTY
-    ETC_PATH test)
-target_compile_definitions(alternatives PUBLIC
-    ETC_PATH="${CMAKE_INSTALL_SYSCONFDIR}"
-    CONFIG_DIR="${CONFIG_DIR}"
-    CONFIG_FILENAME="${CONFIG_FILENAME}"
-)
-
-# test library also contains utilities that will be tested
-add_library(test_libalternatives STATIC
-    "${SOURCES}"
-    src/utils/alternatives.c
-)
-target_compile_definitions(test_libalternatives PRIVATE
-    ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/test"
-    CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/test_defaults"
-    CONFIG_FILENAME="${CONFIG_FILENAME}"
-    UNITTESTS=1
-)
-
-# disable the <libname>_EXPORTS
-set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
-
-add_executable(units
-    test/test.c
-    test/options_parser_tests.c
-    test/config_parser_tests.c
-    test/alternatives_tests.c
-)
-target_link_libraries(units PUBLIC cunit)
-target_link_libraries(units PUBLIC test_libalternatives)
-set_property(TARGET test_libalternatives alternatives PROPERTY C_STANDARD 99)
+add_subdirectory(src)
+add_subdirectory(test)
 
 if(ENABLE_COVERAGE)
     include(./cmake/CodeCoverage.cmake)
@@ -88,5 +46,3 @@ set_target_properties(AlternativesHelper PROPERTIES OUTPUT_NAME alternatives)
 
 #install(TARGETS libalternatives_default DESTINATION bin)
 install(TARGETS AlternativesHelper)
-install(TARGETS alternatives)
-install(FILES ${HEADERS} DESTINATION include)
