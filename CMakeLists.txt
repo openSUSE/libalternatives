@@ -16,11 +16,11 @@ set(HEADERS
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_library(libalternatives SHARED "${SOURCES}")
-set_property(TARGET libalternatives PROPERTY SOVERSION 1)
-set_property(TARGET libalternatives PROPERTY
+add_library(alternatives SHARED "${SOURCES}")
+set_property(TARGET alternatives PROPERTY SOVERSION 1)
+set_property(TARGET alternatives PROPERTY
     ETC_PATH test)
-target_compile_definitions(libalternatives PUBLIC
+target_compile_definitions(alternatives PUBLIC
     ETC_PATH="/etc"
     CONFIG_DIR="/usr/share/libalternatives"
     CONFIG_FILENAME="libalternatives.conf"
@@ -40,7 +40,7 @@ target_compile_definitions(test_libalternatives PRIVATE
 
 
 # disable the <libname>_EXPORTS
-set_target_properties(libalternatives PROPERTIES DEFINE_SYMBOL "")
+set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
 
 
 add_executable(units
@@ -51,7 +51,7 @@ add_executable(units
 )
 target_link_libraries(units PUBLIC cunit)
 target_link_libraries(units PUBLIC test_libalternatives)
-set_property(TARGET test_libalternatives libalternatives PROPERTY C_STANDARD 99)
+set_property(TARGET test_libalternatives alternatives PROPERTY C_STANDARD 99)
 
 include(./cmake/CodeCoverage.cmake)
 APPEND_COVERAGE_COMPILER_FLAGS()
@@ -66,18 +66,18 @@ setup_target_for_coverage_lcov(
 add_executable(libalternatives_default
     src/utils/default_helper.c
 )
-target_link_libraries(libalternatives_default PUBLIC libalternatives)
+target_link_libraries(libalternatives_default PUBLIC alternatives)
 set_property(TARGET libalternatives_default PROPERTY SKIP_BUILD_RPATH TRUE)
 
-add_executable(alternatives
+add_executable(AlternativesHelper
     src/utils/alternatives.c
 )
-target_link_libraries(alternatives PUBLIC libalternatives)
-set_property(TARGET alternatives PROPERTY SKIP_BUILD_RPATH TRUE)
-set_target_properties(alternatives PROPERTIES OUTPUT_NAME alternatives)
+target_link_libraries(AlternativesHelper PUBLIC alternatives)
+set_property(TARGET AlternativesHelper PROPERTY SKIP_BUILD_RPATH TRUE)
+set_target_properties(AlternativesHelper PROPERTIES OUTPUT_NAME alternatives)
 
 
 #install(TARGETS libalternatives_default DESTINATION bin)
+install(TARGETS AlternativesHelper)
 install(TARGETS alternatives)
-install(TARGETS libalternatives)
 install(FILES ${HEADERS}          DESTINATION include)
