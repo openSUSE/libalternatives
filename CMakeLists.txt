@@ -78,6 +78,6 @@ set_target_properties(alternatives PROPERTIES OUTPUT_NAME alternatives)
 
 
 #install(TARGETS libalternatives_default DESTINATION bin)
-install(TARGETS alternatives      DESTINATION bin)
-install(TARGETS libalternatives   DESTINATION lib)
+install(TARGETS alternatives)
+install(TARGETS libalternatives)
 install(FILES ${HEADERS}          DESTINATION include)
