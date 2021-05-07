@@ -16,6 +16,8 @@
  */
 
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
@@ -99,6 +101,7 @@ extern void addAlternativesAppTests();
 
 int main()
 {
+	mkdir(CONFIG_DIR "/no_size_alternatives", 0777);
 	CU_initialize_registry();
 
 	CU_pSuite suite = CU_add_suite("libalternatives test suite", suite_init, suite_cleanup);
