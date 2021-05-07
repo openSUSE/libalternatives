@@ -109,7 +109,7 @@ static int listAllInstalledOverrides(const char *program_filter)
 				printf("*** %d priority data unparsable config.\n", priority);
 				continue;
 			}
-			for (struct AlternativeLink *link=alts; link->type != ALTLINK_EOL; link++) {
+			for (struct AlternativeLink *link=alts; link && link->type != ALTLINK_EOL; link++) {
 				if (link->type == ALTLINK_BINARY) {
 					printf("  Priority: %d%c  Target: %s\n", priority, priority_mark, link->target);
 					break;
