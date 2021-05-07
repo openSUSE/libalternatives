@@ -180,6 +180,25 @@ static void noResumeFromError()
 	CU_ASSERT_PTR_NULL(doneOptionsParser(10, state));
 }
 
+static void parsingMultipleManpages()
+{
+	const char data[] = "binary=/usr/bin/ls\nman=foo.1,  \t bar.5n,, ,   omega.8section   ";
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data), state), 0);
+	CU_ASSERT_PTR_NOT_NULL(result = doneOptionsParser(10, state));
+
+	CU_ASSERT_EQUAL(result[0].type, ALTLINK_BINARY);
+	CU_ASSERT_EQUAL(result[1].type, ALTLINK_MANPAGE);
+	CU_ASSERT_EQUAL(result[2].type, ALTLINK_MANPAGE);
+	CU_ASSERT_EQUAL(result[3].type, ALTLINK_MANPAGE);
+	CU_ASSERT_EQUAL(result[4].type, ALTLINK_EOL);
+
+	CU_ASSERT_STRING_EQUAL(result[0].target, "/usr/bin/ls");
+	CU_ASSERT_STRING_EQUAL(result[1].target, "foo.1");
+	CU_ASSERT_STRING_EQUAL(result[2].target, "bar.5n");
+	CU_ASSERT_STRING_EQUAL(result[3].target, "omega.8section");
+}
+
 void addOptionsParserTests()
 {
 	CU_pSuite tests = CU_add_suite_with_setup_and_teardown("parser",
@@ -197,4 +216,5 @@ void addOptionsParserTests()
 	CU_ADD_TEST(tests, noDelimeterAfterValidToken);
 	CU_ADD_TEST(tests, invalidToken);
 	CU_ADD_TEST(tests, noResumeFromError);
+	CU_ADD_TEST(tests, parsingMultipleManpages);
 }

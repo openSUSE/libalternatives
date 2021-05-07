@@ -29,9 +29,10 @@
 
 extern int alternatives_app_main(int argc, char *argv[]);
 
-int saved_io[3];
+static int saved_io[3];
 static char stdout_buffer[10240];
 static char stderr_buffer[10240];
+static int start_error_count;
 
 static int wrapCall(int argc, char *argv[])
 {
@@ -98,22 +99,20 @@ static int removeIOFiles()
 	return 0;
 }
 
-static int noop_func()
+static void storeErrorCount()
 {
-	return 0;
+	start_error_count = CU_get_number_of_failures();
 }
 
 static void printOutputOnErrorIncrease()
 {
-	static int old_err_count;
 	int new_err_count = CU_get_number_of_failures();
 
-	if (old_err_count < new_err_count) {
+	if (start_error_count < new_err_count) {
 		puts("************** TEST OUTPUT ***************");
 		printf("stdout: '%s'\n", stdout_buffer);
 		printf("stderr: '%s'\n", stderr_buffer);
 	}
-	old_err_count = new_err_count;
 }
 
 #define WRAP_CALL(a) wrapCall(sizeof(a)/sizeof(char*), a)
@@ -273,7 +272,7 @@ Alternatives: 3\n\
 
 void addAlternativesAppTests()
 {
-	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, removeIOFiles, (void(*)())noop_func, printOutputOnErrorIncrease);
+	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, removeIOFiles, storeErrorCount, printOutputOnErrorIncrease);
 	CU_ADD_TEST(suite, helpScreen);
 	CU_ADD_TEST(suite, unknownParamsHelpScreen);
 	CU_ADD_TEST(suite, moreThanOneCommand);

@@ -25,7 +25,7 @@ typedef int(*ParserFunction)(const char *data, size_t len, struct OptionsParserS
 
 struct OptionsParserState
 {
-	u_int32_t parser_func_param, parser_func_param2;
+	u_int32_t parser_func_param, parser_func_param2, parser_func_param3;
 	ParserFunction parser_func;
 
 	struct AlternativeLink *parsed_data;
@@ -49,47 +49,6 @@ static int parser_alreadyErrorNoResumePossible(const char *data, size_t len, str
 	(void)state;
 
 	return -1;
-}
-
-static int parser_searchToken(const char *data, size_t len, struct OptionsParserState *state);
-static int parser_parseValue(const char *data, size_t len, struct OptionsParserState *state)
-{
-	struct AlternativeLink *link = state->parsed_data + state->parser_func_param;
-	u_int16_t value_string_pos = state->parser_func_param2 & 0xFFFF;
-	u_int16_t value_string_size = state->parser_func_param2 >> 16;
-
-	while (len > 0) {
-		char c = *data;
-		char *out = (char*)link->target;
-
-		if (value_string_pos >= value_string_size) {
-			value_string_size += 0x100;
-			link->target = realloc((void*)link->target, value_string_size);
-			out = (char*)link->target;
-		}
-
-		switch (c) {
-			case '\n':
-			case '\r':
-				out[value_string_pos] = '\x00';
-				while (value_string_pos > 0 && isWhitespace(out[value_string_pos-1])) {
-					out[--value_string_pos] = '\x00';
-				}
-
-				state->parser_func = parser_searchToken;
-				return state->parser_func(data+1, len-1, state);
-			default:
-				out[value_string_pos] = c;
-				break;
-		}
-
-		data++;
-		len--;
-		value_string_pos++;
-	}
-
-	state->parser_func_param2 = value_string_pos | (((u_int32_t)value_string_size) << 16);
-	return 0;
 }
 
 static void allocateBuffer(struct AlternativeLink **link, int *size_ptr)
@@ -122,6 +81,97 @@ static int findFirstParsedDataLocation(struct OptionsParserState *state, int typ
 
 	allocateBuffer(&state->parsed_data, &state->parsed_data_size);
 	return findFirstParsedDataLocation(state, type);
+}
+
+static int findFirstFreeDataLocation(struct OptionsParserState *state, int type)
+{
+	int pos = findFirstParsedDataLocation(state, ALTLINK_EOL);
+	(state->parsed_data+pos)->type = type;
+	return pos;
+}
+
+static int parser_parseValue(const char *data, size_t len, struct OptionsParserState *state);
+static int parser_skipOptionalWhitespaceBeforeManpageEntries(const char *data, size_t len, struct OptionsParserState *state)
+{
+	while (len>0) {
+		if (!isWhitespace(*data)) {
+			state->parser_func = parser_parseValue;
+			return state->parser_func(data, len, state);
+		}
+
+		len--;
+		data++;
+	}
+
+	return 0;
+}
+
+static int parser_searchToken(const char *data, size_t len, struct OptionsParserState *state);
+static int parser_parseValue(const char *data, size_t len, struct OptionsParserState *state)
+{
+	struct AlternativeLink *link = state->parsed_data + state->parser_func_param;
+	u_int16_t value_string_pos = state->parser_func_param2 & 0xFFFF;
+	u_int16_t value_string_size = state->parser_func_param2 >> 16;
+	const int is_multi_value = state->parser_func_param3 & 0x1;
+
+	while (len > 0) {
+		char c = *data;
+		char *out = (char*)link->target;
+
+		if (value_string_pos >= value_string_size) {
+			value_string_size += 0x100;
+			link->target = realloc((void*)link->target, value_string_size);
+			out = (char*)link->target;
+		}
+
+		switch (c) {
+			case ',':
+				if (is_multi_value) {
+					out[value_string_pos] = '\x00';
+					while (value_string_pos > 0 && isWhitespace(out[value_string_pos-1])) {
+						out[--value_string_pos] = '\x00';
+					}
+
+					if (value_string_pos > 0) {
+						state->parser_func_param = findFirstFreeDataLocation(state, link->type);
+						state->parser_func_param2 = 0;
+					}
+
+					state->parser_func = parser_skipOptionalWhitespaceBeforeManpageEntries;
+					return state->parser_func(data+1, len-1, state);
+				}
+				out[value_string_pos] = c;
+				break;
+			case '\n':
+			case '\r':
+			case '\0':
+				out[value_string_pos] = '\x00';
+				while (value_string_pos > 0 && isWhitespace(out[value_string_pos-1])) {
+					out[--value_string_pos] = '\x00';
+				}
+
+				state->parser_func = parser_searchToken;
+				return state->parser_func(data+1, len-1, state);
+			default:
+				out[value_string_pos] = c;
+				break;
+		}
+
+		data++;
+		len--;
+		value_string_pos++;
+	}
+
+	state->parser_func_param2 = value_string_pos | (((u_int32_t)value_string_size) << 16);
+	return 0;
+}
+
+static int parser_parseMultiValue(const char *data, size_t len, struct OptionsParserState *state)
+{
+	state->parser_func_param3 = 1;
+	state->parser_func = parser_parseValue;
+
+	return state->parser_func(data, len, state);
 }
 
 #define AFTER_OFFSET 1000
@@ -162,9 +212,10 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Op
 
 			state->parser_func_param = findFirstParsedDataLocation(state, ALTLINK_BINARY);
 			state->parser_func_param2 = 0;
+			state->parser_func_param3 = 0;
 			break;
 		case MAN_FUNCTION_AFTER_EQUAL:
-			state->parser_func = parser_parseValue;
+			state->parser_func = parser_parseMultiValue;
 
 			state->parser_func_param = findFirstParsedDataLocation(state, ALTLINK_MANPAGE);
 			state->parser_func_param2 = 0;
