@@ -42,7 +42,7 @@ add_executable(AlternativesHelper
 )
 target_link_libraries(AlternativesHelper PUBLIC alternatives)
 set_property(TARGET AlternativesHelper PROPERTY SKIP_BUILD_RPATH TRUE)
-set_target_properties(AlternativesHelper PROPERTIES OUTPUT_NAME alternatives)
+set_target_properties(AlternativesHelper PROPERTIES OUTPUT_NAME alts)
 
 #install(TARGETS libalternatives_default DESTINATION bin)
 install(TARGETS AlternativesHelper)

@@ -27,7 +27,7 @@
 #include <string.h>
 #include "../libalternatives.h"
 
-const char binname[] = "alternatives";
+const char binname[] = "alts";
 
 static int strcmpp(const void *a, const void *b, __attribute__((unused)) void *ptr)
 {
@@ -155,9 +155,9 @@ static void printHelp()
 		"\n\n"
 		"  libalternatives (C) 2021  SUSE LLC\n"
 		"\n"
-		"    alternatives -h         --- this help screen\n"
-		"    alternatives -l[name]   --- list programs or just one with given name\n"
-		"    alternatives [-u] [-s] -n <program> [-p <alt_priority>]\n"
+		"    alts -h         --- this help screen\n"
+		"    alts -l[name]   --- list programs or just one with given name\n"
+		"    alts [-u] [-s] -n <program> [-p <alt_priority>]\n"
 		"       sets an override with a given priority as default\n"
 		"       if priority is not set, then resets to default by removing override\n"
 		"       -u -- user override, default for non-root users\n"
