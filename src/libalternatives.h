@@ -62,7 +62,10 @@ void freeAlternatives(struct AlternativeLink **);
 
 // convenience
 int execDefault(char *argv[]); // binary in argv[0]
-char* defaultManpage(const char *binary_name);
+
+// returns a list of manpages followed by a NULL ptr
+// returned data should be freed
+char** defaultManpages(const char *binary_name);
 
 // for unit testing only, remove from library symbols later
 
