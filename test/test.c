@@ -112,5 +112,8 @@ int main()
 	addAlternativesAppTests();
 
 	CU_basic_run_tests();
+	int failed_tests = CU_get_number_of_tests_failed();
 	CU_cleanup_registry();
+
+	return failed_tests != 0;
 }
