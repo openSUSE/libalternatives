@@ -17,9 +17,6 @@ set(CONFIG_DIR
 set(CONFIG_FILENAME "libalternatives.conf" CACHE STRING "Configueration filename in the SYSCONFDIR")
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_subdirectory(src)
-add_subdirectory(test)
-
 if(ENABLE_COVERAGE)
     include(./cmake/CodeCoverage.cmake)
     APPEND_COVERAGE_COMPILER_FLAGS()
@@ -29,6 +26,9 @@ if(ENABLE_COVERAGE)
         EXCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/test/*
     )
 endif()
+
+add_subdirectory(src)
+add_subdirectory(test)
 
 # utilities
 add_executable(AlternativesHelper
