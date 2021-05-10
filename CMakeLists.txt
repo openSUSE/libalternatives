@@ -31,12 +31,6 @@ if(ENABLE_COVERAGE)
 endif()
 
 # utilities
-add_executable(libalternatives_default
-    src/utils/default_helper.c
-)
-target_link_libraries(libalternatives_default PUBLIC alternatives)
-set_property(TARGET libalternatives_default PROPERTY SKIP_BUILD_RPATH TRUE)
-
 add_executable(AlternativesHelper
     src/utils/alternatives.c
 )
