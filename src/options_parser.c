@@ -181,6 +181,8 @@ enum WhiteSpaceSkipType
 	BINARY_FUNCTION_AFTER_EQUAL=BINARY_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
 	MAN_FUNCTION_BEFORE_EQUAL=2,
 	MAN_FUNCTION_AFTER_EQUAL=MAN_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
+	GROUP_FUNCTION_BEFORE_EQUAL=3,
+	GROUP_FUNCTION_AFTER_EQUAL=GROUP_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
 };
 
 static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct OptionsParserState *state)
@@ -196,6 +198,7 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Op
 	switch (state->parser_func_param) {
 		case BINARY_FUNCTION_BEFORE_EQUAL:
 		case MAN_FUNCTION_BEFORE_EQUAL:
+		case GROUP_FUNCTION_BEFORE_EQUAL:
 			if (!isDelimeter(*data)) {
 				state->parser_func = parser_alreadyErrorNoResumePossible;
 				break;
@@ -220,6 +223,12 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Op
 			state->parser_func_param = findFirstParsedDataLocation(state, ALTLINK_MANPAGE);
 			state->parser_func_param2 = 0;
 			break;
+		case GROUP_FUNCTION_AFTER_EQUAL:
+			state->parser_func = parser_parseValue;
+
+			state->parser_func_param = findFirstParsedDataLocation(state, ALTLINK_GROUP);
+			state->parser_func_param2 = 0;
+			state->parser_func_param3 = 0;
 	}
 
 	return state->parser_func(data, len, state);
@@ -263,6 +272,13 @@ static int parser_assertManpageToken(const char *data, size_t len, struct Option
 	return assertTokenMatch(data, len, state, match, sizeof(match)-1, MAN_FUNCTION_BEFORE_EQUAL);
 }
 
+static int parser_assertGroupToken(const char *data, size_t len, struct OptionsParserState *state)
+{
+	const char match[] = "group";
+
+	return assertTokenMatch(data, len, state, match, sizeof(match)-1, GROUP_FUNCTION_BEFORE_EQUAL);
+}
+
 static int parser_searchToken(const char *data, size_t len, struct OptionsParserState *state)
 {
 	while (len > 0 && (isWhitespace(*data) || *data == '\n' || *data == '\r')) {
@@ -277,6 +293,10 @@ static int parser_searchToken(const char *data, size_t len, struct OptionsParser
 		case 'b':
 			state->parser_func_param = 1;
 			state->parser_func = parser_assertBinaryToken;
+			break;
+		case 'g':
+			state->parser_func_param = 1;
+			state->parser_func = parser_assertGroupToken;
 			break;
 		case 'm':
 			state->parser_func_param = 1;

@@ -21,6 +21,7 @@ enum AlternativeLinkType
 {
 	ALTLINK_BINARY = 0,
 	ALTLINK_MANPAGE = 1,
+	ALTLINK_GROUP = 2,
 
 	ALTLINK_EOL = -1
 };
@@ -39,6 +40,7 @@ int loadHighestAlternativesForBinary(const char *binary_name, struct Alternative
 int loadSpecificAlternativeForBinary(const char *binary_name, int prio, struct AlternativeLink **alternatives);
 
 int listAllAvailableBinaries(char ***binaries, size_t *size);
+int listAllBinariesInGroup(const char *group_name, char ***binaries, size_t *size);
 int listAllAlternativesForBinary(const char *binary_name, int **alts, size_t *size);
 
 // returns config override (priority) from a given config file

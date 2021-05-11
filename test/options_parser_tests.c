@@ -199,6 +199,36 @@ static void parsingMultipleManpages()
 	CU_ASSERT_STRING_EQUAL(result[3].target, "omega.8section");
 }
 
+static void parsesSingleGroup()
+{
+	const char data[] = "binary=/usr/bin/ls\ngroup=foobar";
+
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data), state), 0);
+	CU_ASSERT_PTR_NOT_NULL(result = doneOptionsParser(10, state));
+
+	CU_ASSERT_EQUAL(result[0].type, ALTLINK_BINARY);
+	CU_ASSERT_EQUAL(result[1].type, ALTLINK_GROUP);
+	CU_ASSERT_EQUAL(result[2].type, ALTLINK_EOL);
+
+	CU_ASSERT_STRING_EQUAL(result[1].target, "foobar");
+}
+
+static void parsesMultipleGroupsAsLatestGroup()
+{
+	const char data[] = "binary=/usr/bin/ls\ngroup=foobar\ngroup=bar,bar";
+
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data), state), 0);
+	CU_ASSERT_PTR_NOT_NULL(result = doneOptionsParser(10, state));
+
+	CU_ASSERT_EQUAL(result[0].type, ALTLINK_BINARY);
+	CU_ASSERT_EQUAL(result[1].type, ALTLINK_GROUP);
+	CU_ASSERT_EQUAL(result[2].type, ALTLINK_EOL);
+
+	CU_ASSERT_STRING_EQUAL(result[1].target, "bar,bar");
+}
+
 void addOptionsParserTests()
 {
 	CU_pSuite tests = CU_add_suite_with_setup_and_teardown("parser",
@@ -217,4 +247,6 @@ void addOptionsParserTests()
 	CU_ADD_TEST(tests, invalidToken);
 	CU_ADD_TEST(tests, noResumeFromError);
 	CU_ADD_TEST(tests, parsingMultipleManpages);
+	CU_ADD_TEST(tests, parsesSingleGroup);
+	CU_ADD_TEST(tests, parsesMultipleGroupsAsLatestGroup);
 }
