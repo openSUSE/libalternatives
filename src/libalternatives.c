@@ -593,6 +593,7 @@ int execDefault(char *argv[])
 	struct AlternativeLink *alts;
 	checkEnvDebug();
 	loadAlternatives(argv[0], &alts);
+
 	if (alts) {
 		while (alts->type != ALTLINK_EOL) {
 			if (alts->type == ALTLINK_BINARY) {
