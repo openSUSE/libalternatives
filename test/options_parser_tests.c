@@ -214,9 +214,9 @@ static void parsesSingleGroup()
 	CU_ASSERT_STRING_EQUAL(result[1].target, "foobar");
 }
 
-static void parsesMultipleGroupsAsLatestGroup()
+static void parsesMultipleGroupsAsLatestGroupList()
 {
-	const char data[] = "binary=/usr/bin/ls\ngroup=foobar\ngroup=bar,bar";
+	const char data[] = "binary=/usr/bin/ls\ngroup=foobar\ngroup=bar,foo";
 
 	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
 	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data), state), 0);
@@ -224,9 +224,11 @@ static void parsesMultipleGroupsAsLatestGroup()
 
 	CU_ASSERT_EQUAL(result[0].type, ALTLINK_BINARY);
 	CU_ASSERT_EQUAL(result[1].type, ALTLINK_GROUP);
-	CU_ASSERT_EQUAL(result[2].type, ALTLINK_EOL);
+	CU_ASSERT_EQUAL(result[2].type, ALTLINK_GROUP);
+	CU_ASSERT_EQUAL(result[3].type, ALTLINK_EOL);
 
-	CU_ASSERT_STRING_EQUAL(result[1].target, "bar,bar");
+	CU_ASSERT_STRING_EQUAL(result[1].target, "bar");
+	CU_ASSERT_STRING_EQUAL(result[2].target, "foo");
 }
 
 void addOptionsParserTests()
@@ -248,5 +250,5 @@ void addOptionsParserTests()
 	CU_ADD_TEST(tests, noResumeFromError);
 	CU_ADD_TEST(tests, parsingMultipleManpages);
 	CU_ADD_TEST(tests, parsesSingleGroup);
-	CU_ADD_TEST(tests, parsesMultipleGroupsAsLatestGroup);
+	CU_ADD_TEST(tests, parsesMultipleGroupsAsLatestGroupList);
 }

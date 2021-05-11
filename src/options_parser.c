@@ -224,7 +224,7 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Op
 			state->parser_func_param2 = 0;
 			break;
 		case GROUP_FUNCTION_AFTER_EQUAL:
-			state->parser_func = parser_parseValue;
+			state->parser_func = parser_parseMultiValue;
 
 			state->parser_func_param = findFirstParsedDataLocation(state, ALTLINK_GROUP);
 			state->parser_func_param2 = 0;
