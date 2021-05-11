@@ -602,6 +602,7 @@ int execDefault(char *argv[])
 				perror("Failed to execute target.");
 				break;
 			}
+			alts++;
 		}
 	}
 
