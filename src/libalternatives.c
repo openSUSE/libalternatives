@@ -593,7 +593,6 @@ int execDefault(char *argv[])
 	struct AlternativeLink *alts;
 	checkEnvDebug();
 	loadAlternatives(argv[0], &alts);
-
 	if (alts) {
 		while (alts->type != ALTLINK_EOL) {
 			if (alts->type == ALTLINK_BINARY) {
@@ -616,18 +615,23 @@ char** defaultManpages(const char *binary_name)
 	checkEnvDebug();
 	loadAlternatives(binary_name, &alts);
 
-	size_t size = 16, pos = 0;
-	char **manpages = malloc(sizeof(char*)*size);
+	size_t count = 0;
+	char **manpages = NULL;
 
 	if (alts) {
-		while (alts->type != ALTLINK_EOL && pos < size-1) {
-			if (alts->type == ALTLINK_MANPAGE)
-				manpages[pos++] = strdup(alts->target);
+	        struct AlternativeLink *ptr=alts;
+		while (ptr != NULL && ptr->type != ALTLINK_EOL) {
+		  if (ptr->type == ALTLINK_MANPAGE) {
+		    manpages = realloc(manpages, sizeof (char*) * ++count);
+		    manpages[count-1] = strdup(ptr->target);
+		  }
+		  ptr++;
 		}
 
 		freeAlternatives(&alts);
 	}
+	manpages = realloc(manpages, sizeof (char*) * ++count);
+	manpages[count-1] = NULL;
 
-	manpages[pos] = NULL;
 	return manpages;
 }
