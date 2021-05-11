@@ -621,9 +621,11 @@ char** defaultManpages(const char *binary_name)
 	char **manpages = malloc(sizeof(char*)*size);
 
 	if (alts) {
-		while (alts->type != ALTLINK_EOL && pos < size-1) {
-			if (alts->type == ALTLINK_MANPAGE)
-				manpages[pos++] = strdup(alts->target);
+		struct AlternativeLink *ptr = alts;
+		while (ptr->type != ALTLINK_EOL && pos < size-1) {
+			if (ptr->type == ALTLINK_MANPAGE)
+				manpages[pos++] = strdup(ptr->target);
+			ptr++;
 		}
 
 		freeAlternatives(&alts);
