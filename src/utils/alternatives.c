@@ -29,101 +29,7 @@
 
 const char binname[] = "alts";
 
-static int strcmpp(const void *a, const void *b, __attribute__((unused)) void *ptr)
-{
-	return strcmp(*(const char * const *)a, *(const char * const *)b);
-}
-
-static int numcmp(const void *a, const void *b, __attribute__((unused)) void *ptr)
-{
-	return *(const int*)a - *(const int*)b;
-}
-
-static int listAllInstalledOverrides(const char *program_filter)
-{
-	char **bins;
-	size_t bin_size;
-
-	if (listAllAvailableBinaries(&bins, &bin_size) != 0) {
-		perror(binname);
-		return -1;
-	}
-
-	qsort_r(&bins[0], bin_size, sizeof(char*), strcmpp, NULL);
-
-	for (size_t i=0; i<bin_size; i++) {
-		const char *binary = bins[i];
-		int *priorities;
-		size_t prio_size;
-		const char *alt_no_str = "Alternatives: %d\n";
-
-		if (program_filter != NULL && strcmp(program_filter, binary) != 0)
-			continue;
-		if (i > 0 && program_filter == NULL)
-			puts("---");
-
-		printf("Binary: %s\n", binary);
-		if (listAllAlternativesForBinary(binary, &priorities, &prio_size) != 0) {
-			if (errno == ENOENT) {
-				printf(alt_no_str, 0);
-				continue;
-			}
-			else {
-				perror(binname);
-				return -1;
-			}
-		}
-
-		int override_src = 0;
-		int def_priority = loadDefaultConfigOverride(binary, &override_src);
-
-		printf(alt_no_str, prio_size);
-		qsort_r(priorities, prio_size, sizeof(int), numcmp, NULL);
-
-		if (prio_size > 0 && def_priority <= 0) {
-			override_src = 0;
-			def_priority = priorities[prio_size-1];
-		}
-
-		for (size_t i=0; i<prio_size; i++) {
-			int priority = priorities[i];
-			struct AlternativeLink *alts;
-			char priority_mark = ' ';
-
-			if (def_priority == priority) {
-				switch (override_src) {
-					default:
-					case 0: // default selection
-						priority_mark = '*';
-						break;
-					case 1: // system
-						priority_mark = '!';
-						break;
-					case 2: // user
-						priority_mark = '~';
-						break;
-				}
-			}
-
-			if (loadSpecificAlternativeForBinary(binary, priority, &alts) < 0) {
-				printf("*** %d priority data unparsable config.\n", priority);
-				continue;
-			}
-			for (struct AlternativeLink *link=alts; link && link->type != ALTLINK_EOL; link++) {
-				if (link->type == ALTLINK_BINARY) {
-					printf("  Priority: %d%c  Target: %s\n", priority, priority_mark, link->target);
-					break;
-				}
-			}
-			freeAlternatives(&alts);
-		}
-
-		free(priorities);
-	}
-	free(bins);
-
-	return 0;
-}
+extern int printInstalledBinariesAndTheirOverrideStates(const char *program);
 
 static int setProgramOverride(const char *program, int priority, int is_system, int is_user)
 {
@@ -230,7 +136,7 @@ static int processOptions(int argc, char *argv[])
 			printHelp();
 			return -1;
 		case 'l':
-			return listAllInstalledOverrides(program);
+			return printInstalledBinariesAndTheirOverrideStates(program);
 		case 'n':
 			return setProgramOverride(program, priority, is_system, is_user);
 		default:

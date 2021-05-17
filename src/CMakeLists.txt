@@ -27,6 +27,7 @@ if(BUILD_TESTING)
 add_library(test_libalternatives STATIC
     "${SOURCES}"
     utils/alternatives.c
+    utils/list_binaries.c
 )
 target_compile_definitions(test_libalternatives PRIVATE
     ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../test"

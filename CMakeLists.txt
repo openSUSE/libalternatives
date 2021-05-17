@@ -33,6 +33,7 @@ add_subdirectory(test)
 # utilities
 add_executable(AlternativesHelper
     src/utils/alternatives.c
+    src/utils/list_binaries.c
 )
 target_link_libraries(AlternativesHelper PUBLIC alternatives)
 set_property(TARGET AlternativesHelper PROPERTY SKIP_BUILD_RPATH TRUE)

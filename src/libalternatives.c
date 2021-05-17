@@ -280,7 +280,7 @@ int listAllAvailableBinaries(char ***binaries_ptr, size_t *size)
 	while ((dirent = readdir(dir)) != NULL) {
 		if (pos >= *size) {
 			*size = 2 * (*size + 1);
-			*binaries_ptr = realloc(*binaries_ptr, sizeof(char*)**size);
+			*binaries_ptr = (char**)realloc(*binaries_ptr, sizeof(char*)**size);
 		}
 		if (*binaries_ptr == NULL)
 			return -1;
@@ -324,16 +324,16 @@ struct collectPrioData
 	size_t pos;
 };
 
-int collectAllPrioritiesInData(int new, __attribute__((unused)) int old, void *data_ptr)
+int collectAllPrioritiesInData(int new_prio, __attribute__((unused)) int old_prio, void *data_ptr)
 {
 	struct collectPrioData *data = (struct collectPrioData*)data_ptr;
 
 	if (data->pos >= *data->size) {
 		*data->size += 32;
-		*data->alts = realloc(*data->alts, sizeof(int)**data->size);
+		*data->alts = (int*)realloc(*data->alts, sizeof(int)**data->size);
 	}
 
-	(*data->alts)[data->pos++] = new;
+	(*data->alts)[data->pos++] = new_prio;
 	return 1;
 }
 
@@ -422,6 +422,7 @@ static int saveConfigData(const char *config_path, const char *data)
 	const size_t len = strlen(data);
 	int ret = 0;
 	int olderr;
+	size_t pos;
 
 	if (stat(config_path, &st) == 0) {
 		mode = st.st_mode & (S_IRWXO | S_IRWXG | S_IRWXU);
@@ -432,7 +433,7 @@ static int saveConfigData(const char *config_path, const char *data)
 		goto ret;
 	}
 
-	size_t pos = 0;
+	pos = 0;
 	while (pos < len) {
 		int write_count = write(fd, data+pos, len-pos);
 		if (write_count > 0) {
