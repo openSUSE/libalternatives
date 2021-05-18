@@ -155,13 +155,34 @@ static void printInstalledBinaryAlternatives(const struct InstalledBinaryData *b
 			printf("*** %d priority data unparsable config.\n", priority);
 			continue;
 		}
+		int group_pos = 0;
+		const char *group[16];
 		for (struct AlternativeLink *link = binary->alts[i]; link && link->type != ALTLINK_EOL; link++)
 		{
-			if (link->type == ALTLINK_BINARY)
-			{
-				printf("  Priority: %d%c  Target: %s\n", priority, priority_mark, link->target);
-				break;
+			switch (link->type) {
+				case ALTLINK_BINARY:
+					printf("  Priority: %d%c  Target: %s\n", priority, priority_mark, link->target);
+					break;
+				case ALTLINK_GROUP:
+					if (group_pos < 16)
+						group[group_pos++] = link->target;
+					break;
+				default:
+					break;
 			}
+		}
+
+		if (group_pos > 0) {
+			qsort_r(&group[0], group_pos, sizeof(const char**), strcmpp, NULL);
+			const char header[] = "                 Group: ";
+			fwrite(header, 1, sizeof(header)-1, stdout);
+			fwrite(group[0], 1, strlen(group[0]), stdout);
+
+			for (int i=1; i<group_pos; i++) {
+				fwrite(", ", 1, 2, stdout);
+				fwrite(group[i], 1, strlen(group[i]), stdout);
+			}
+			fwrite("\n", 1, 1, stdout);
 		}
 	}
 }

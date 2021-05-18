@@ -73,15 +73,15 @@ static int setupTests()
 {
 	const char fn[] = "/libalternatives_local.conf";
 	const char *wd = get_current_dir_name();
-	char *full_path = malloc(strlen(wd) + sizeof(fn)); // includes trailing NULL
+	char *full_path = (char*)malloc(strlen(wd) + sizeof(fn)); // includes trailing NULL
 	strcpy(full_path, wd);
 	strcat(full_path, fn);
 
 	setConfigPath(full_path);
 	free((void*)wd);
 
-	unlink(userConfigFile());
-	unlink(systemConfigFile());
+	unlink(userOverrideFile());
+	unlink(systemOverrideFile());
 
 	return 0;
 }
@@ -89,8 +89,8 @@ static int setupTests()
 static int removeIOFiles()
 {
 	if (CU_get_number_of_failures() == 0) {
-		unlink(userConfigFile());
-		unlink(systemConfigFile());
+		unlink(userOverrideFile());
+		unlink(systemOverrideFile());
 	}
 
 	unlink("test.stdout");
@@ -270,6 +270,53 @@ Alternatives: 3\n\
 	CU_ASSERT_EQUAL(loadDefaultConfigOverride(binary_name, &src), 0);
 }
 
+extern void setConfigDirectory(const char *);
+static int setupGroupTests()
+{
+	setConfigDirectory(CONFIG_DIR "/../test_groups");
+	return setupTests();
+}
+
+static int restoreGroupTestsAndRemoveIOFiles()
+{
+	setConfigDirectory(CONFIG_DIR);
+	return removeIOFiles();
+}
+
+static void listSpecificProgramInAGroup()
+{
+	char *args[] = {"app", "-l", "node"};
+
+	CU_ASSERT_EQUAL(WRAP_CALL(args), 0);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: node\n\
+Alternatives: 3\n\
+  Priority: 10   Target: /usr/bin/node10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/node20\n\
+                 Group: node, npm\n\
+  Priority: 30*  Target: /usr/bin/node30\n\
+                 Group: node, npm\n\
+"), 0);
+}
+
+static void showErrorsForInconsistentGroups()
+{
+	char *args[] = {"app", "-l", "node_bad"};
+
+	CU_ASSERT_EQUAL(WRAP_CALL(args), 1);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: node_bad\n\
+Alternatives: 3\n\
+  Priority: 10   Target: /usr/bin/node10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/node20\n\
+                 Group: node, npm\n\
+  Priority: 30*  Target: /usr/bin/node30\n\
+                 Group: node, npm\n\
+"), 0);
+}
+
 void addAlternativesAppTests()
 {
 	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, removeIOFiles, storeErrorCount, printOutputOnErrorIncrease);
@@ -280,4 +327,8 @@ void addAlternativesAppTests()
 	CU_ADD_TEST(suite, listAllAvailablePrograms);
 	CU_ADD_TEST(suite, listSpecificProgram);
 	CU_ADD_TEST(suite, adjustPriorityForSpecificProgram);
+
+	suite = CU_add_suite_with_setup_and_teardown("Alternative App with Groups Tests", setupGroupTests, restoreGroupTestsAndRemoveIOFiles, storeErrorCount, printOutputOnErrorIncrease);
+	CU_ADD_TEST(suite, listSpecificProgramInAGroup);
+	//CU_ADD_TEST(suite, showErrorsForInconsistentGroups);
 }

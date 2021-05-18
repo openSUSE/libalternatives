@@ -59,6 +59,21 @@ const char user_override_path[] = "";
 int libalternatives_debug = 0;
 #define IS_DEBUG unlikely(libalternatives_debug)
 
+static char *__config_path = CONFIG_DIR;
+static const char* getConfigDirectory()
+{
+	return __config_path;
+}
+
+#ifdef UNITTESTS
+void setConfigDirectory(const char *config_directory)
+{
+	if (strcmp(__config_path, CONFIG_DIR) != 0)
+		free(__config_path);
+	__config_path = strdup(config_directory);
+}
+#endif
+
 static void checkEnvDebug()
 {
 	const char *debug = secure_getenv("LIBALTERNATIVES_DEBUG");
@@ -98,7 +113,7 @@ static int PriorityMatch_getExact(int a, __attribute__((unused)) int b, void *pr
 
 static int findAltConfig(const char *binary_name, PriorityMatchFunction priority_match_func, int *prio, void *data)
 {
-	int configdirfd = open(CONFIG_DIR, O_DIRECTORY, O_RDONLY);
+	int configdirfd = open(getConfigDirectory(), O_DIRECTORY, O_RDONLY);
 	if (configdirfd < 0)
 		return -1;
 
@@ -263,7 +278,7 @@ int listAllAvailableBinaries(char ***binaries_ptr, size_t *size)
 {
 	errno = 0;
 
-	int fd = open(CONFIG_DIR, O_RDONLY | O_DIRECTORY);
+	int fd = open(getConfigDirectory(), O_RDONLY | O_DIRECTORY);
 	if (fd == -1)
 		return -1;
 
@@ -499,7 +514,7 @@ void freeAlternatives(struct AlternativeLink **links)
 int loadDefaultConfigOverride(const char *binary_name, int *src)
 {
 	// try to load user override
-	const char *config_path = userConfigFile();
+	const char *config_path = userOverrideFile();
 	int priority = 0;
 	if (config_path != NULL) {
 		if (IS_DEBUG)
@@ -529,40 +544,40 @@ int loadDefaultConfigOverride(const char *binary_name, int *src)
 	return priority;
 }
 
-const char* systemConfigFile()
+const char* systemOverrideFile()
 {
 	return SYSTEM_OVERRIDE_PATH;
 }
 
-static const char* __config_path;
-const char* userConfigFile()
+static const char* __override_path;
+const char* userOverrideFile()
 {
-	if (__config_path == NULL) {
+	if (__override_path == NULL) {
 		const char *config_home = secure_getenv("XDG_CONFIG_HOME");
 		if (config_home != NULL) {
 			const char config_filename[] = "/" CONFIG_FILENAME;
-			__config_path = concat_str_safe(config_home, strlen(config_home), config_filename, sizeof(config_filename));
+			__override_path = concat_str_safe(config_home, strlen(config_home), config_filename, sizeof(config_filename));
 		}
 		else {
 			config_home = secure_getenv("HOME");
 			const char config_filename[] = "/.config/" CONFIG_FILENAME;
 			if (config_home != NULL)
-				__config_path = concat_str_safe(config_home, strlen(config_home), config_filename, sizeof(config_filename));
+				__override_path = concat_str_safe(config_home, strlen(config_home), config_filename, sizeof(config_filename));
 		}
 	}
 
-	return __config_path;
+	return __override_path;
 }
 
 // for debugging
 void setConfigPath(const char *config_path)
 {
-	if (__config_path)
-		free((void*)__config_path);
+	if (__override_path)
+		free((void*)__override_path);
 
-	__config_path = NULL;
+	__override_path = NULL;
 	if (config_path)
-		__config_path = strdup(config_path);
+		__override_path = strdup(config_path);
 }
 
 static int loadAlternatives(const char *binary_name, struct AlternativeLink **alts)

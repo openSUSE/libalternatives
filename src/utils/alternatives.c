@@ -45,7 +45,7 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 		return -1;
 	}
 
-	const char *config_fn = (is_user ? userConfigFile() : systemConfigFile());
+	const char *config_fn = (is_user ? userOverrideFile() : systemOverrideFile());
 	int ret = setConfigOverride(program, priority, config_fn);
 	if (ret < 0) {
 		perror(config_fn);

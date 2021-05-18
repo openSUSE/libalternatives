@@ -55,8 +55,8 @@ int setConfigOverride(const char *binary_name, int priority, const char *config_
 int loadDefaultConfigOverride(const char *binary_name, int *src);
 
 // config filenames, they may or may not exist
-const char* systemConfigFile();
-const char* userConfigFile();
+const char* systemOverrideFile();
+const char* userOverrideFile();
 
 // convenience
 void freeAlternatives(struct AlternativeLink **);
@@ -69,4 +69,6 @@ int execDefault(char *argv[]); // binary in argv[0]
 char** defaultManpages(const char *binary_name);
 
 // for unit testing only, remove from library symbols later
-
+#ifdef UNITTESTS
+void setConfigDirectory(const char *config_directory);
+#endif
