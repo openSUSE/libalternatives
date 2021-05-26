@@ -16,22 +16,13 @@
  */
 
 #define _GNU_SOURCE
-#include "utils.h"
 
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct InstalledBinaryData
-{
-	const char *binary_name;
-	size_t num_priorities;
-	int *priorities;
-
-	int def_priority, def_priority_src;
-	struct AlternativeLink **alts; // [0..num_priorities)
-};
+#include "utils.h"
 
 static int strcmpp(const void *a, const void *b, __attribute__((unused)) void *ptr)
 {
@@ -121,7 +112,21 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 	return 0;
 }
 
-static void printInstalledBinaryAlternatives(const struct InstalledBinaryData *binary)
+static void printErrorsAssociatedWithBinary(const struct AlternativeLink *link, const struct ConsistencyError *errors, unsigned n_errors)
+{
+	while (link->type != ALTLINK_EOL) {
+		for (unsigned err=0; err<n_errors; err++) {
+			if (errors[err].record == link) {
+				fwrite("  ", 1, 2, stdout);
+				puts(errors[err].message);
+			}
+		}
+
+		link++;
+	}
+}
+
+static void printInstalledBinaryAlternatives(const struct InstalledBinaryData *binary, const struct ConsistencyError *errors, unsigned n_errors)
 {
 	const char *alt_no_str = "Alternatives: %d\n";
 
@@ -184,6 +189,8 @@ static void printInstalledBinaryAlternatives(const struct InstalledBinaryData *b
 			}
 			fwrite("\n", 1, 1, stdout);
 		}
+
+		printErrorsAssociatedWithBinary(binary->alts[i], errors, n_errors);
 	}
 }
 
@@ -198,6 +205,8 @@ static void freeInstalledBinaryDataStruct(struct InstalledBinaryData *data)
 int printInstalledBinariesAndTheirOverrideStates(const char *program)
 {
 	struct InstalledBinaryData *binaries;
+	struct ConsistencyError *errors = NULL;
+	unsigned n_errors;
 	size_t bin_size;
 	int ret;
 
@@ -205,13 +214,15 @@ int printInstalledBinariesAndTheirOverrideStates(const char *program)
 	if (ret != 0)
 		return ret;
 
+	ret = checkGroupConsistencies(binaries, bin_size, 0, &errors, &n_errors);
 	for (size_t i=0; i<bin_size; i++) {
 		if (i > 0)
 			puts("---");
-		printInstalledBinaryAlternatives(binaries + i);
+		printInstalledBinaryAlternatives(binaries + i, errors, n_errors);
 		freeInstalledBinaryDataStruct(binaries + i);
 	}
 	free(binaries);
+	free(errors);
 
-	return 0;
+	return ret;
 }

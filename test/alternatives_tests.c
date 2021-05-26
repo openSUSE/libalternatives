@@ -309,11 +309,13 @@ static void showErrorsForInconsistentGroups()
 "Binary: node_bad\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
-                 Group: node, npm\n\
+                 Group: node_bad, npm\n\
   Priority: 20   Target: /usr/bin/node20\n\
-                 Group: node, npm\n\
+                 Group: npm\n\
+  WARNING: binary not part of the Group\n\
+  WARNING: shadows more complete Group with lower priority\n\
   Priority: 30*  Target: /usr/bin/node30\n\
-                 Group: node, npm\n\
+  WARNING: shadows more complete Group with lower priority\n\
 "), 0);
 }
 
@@ -330,5 +332,5 @@ void addAlternativesAppTests()
 
 	suite = CU_add_suite_with_setup_and_teardown("Alternative App with Groups Tests", setupGroupTests, restoreGroupTestsAndRemoveIOFiles, storeErrorCount, printOutputOnErrorIncrease);
 	CU_ADD_TEST(suite, listSpecificProgramInAGroup);
-	//CU_ADD_TEST(suite, showErrorsForInconsistentGroups);
+	CU_ADD_TEST(suite, showErrorsForInconsistentGroups);
 }
