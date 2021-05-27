@@ -72,7 +72,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 		struct InstalledBinaryData *binary = (*binaries_ptr) + i;
 		binary->binary_name = binary_names_array[i];
 
-		if (listAllAlternativesForBinary(binary->binary_name, &binary->priorities, &binary->num_priorities) != 0) {
+		if (listAllAlternativePrioritiesForBinary(binary->binary_name, &binary->priorities, &binary->num_priorities) != 0) {
 			if (errno == ENOENT) {
 				binary->num_priorities = 0;
 				continue;

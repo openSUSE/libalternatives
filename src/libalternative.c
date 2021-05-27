@@ -352,7 +352,7 @@ int collectAllPrioritiesInData(int new_prio, __attribute__((unused)) int old_pri
 	return 1;
 }
 
-int listAllAlternativesForBinary(const char *binary_name, int **alts, size_t *size)
+int listAllAlternativePrioritiesForBinary(const char *binary_name, int **alts, size_t *size)
 {
 	int ignored;
 

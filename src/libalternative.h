@@ -40,7 +40,7 @@ int loadHighestAlternativesForBinary(const char *binary_name, struct Alternative
 int loadSpecificAlternativeForBinary(const char *binary_name, int prio, struct AlternativeLink **alternatives);
 
 int listAllAvailableBinaries(char ***binaries, size_t *size);
-int listAllAlternativesForBinary(const char *binary_name, int **alts, size_t *size);
+int listAllAlternativePrioritiesForBinary(const char *binary_name, int **alts, size_t *size);
 
 // returns config override (priority) from a given config file
 // 0 otherwise, or -1 on error
