@@ -53,7 +53,7 @@ static int isBinaryInGroupOfBinariesOrWithoutGroup(const char *binary_name, stru
 	return ret;
 }
 
-static int isLargestOrSameSizeGroupAsLowerPriorityBinary(int *group_sizes, unsigned group_idx)
+static int isLargestOrSameSizeGroupAsLowerPriorityBinary(unsigned *group_sizes, unsigned group_idx)
 {
 	if (group_idx == 0 || group_sizes[group_idx-1] <= group_sizes[group_idx])
 		return 1;
