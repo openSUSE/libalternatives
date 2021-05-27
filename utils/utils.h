@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../libalternative.h"
+#include "../src/libalternative.h"
 
 extern const char *binname;
 
@@ -39,5 +39,5 @@ enum ConsistencyCheckFlags
 	CONSISTENCY_LOAD_ADDITIONAL_BINARIES = 1
 };
 
-extern int printInstalledBinariesAndTheirOverrideStates(const char *program);
-extern int checkGroupConsistencies(const struct InstalledBinaryData *data, unsigned n_binaries, enum ConsistencyCheckFlags flags, struct ConsistencyError **errors, unsigned *n_errors);
+int printInstalledBinariesAndTheirOverrideStates(const char *program);
+int checkGroupConsistencies(const struct InstalledBinaryData *data, unsigned n_binaries, enum ConsistencyCheckFlags flags, struct ConsistencyError **errors, unsigned *n_errors);

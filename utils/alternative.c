@@ -25,7 +25,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#include "../libalternative.h"
+#include "../src/libalternative.h"
 
 const char binname[] = "alts";
 

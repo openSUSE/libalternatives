@@ -1,14 +1,15 @@
-if(BUILD_TESTING)
-add_executable(units
-    test.c
-    options_parser_tests.c
-    config_parser_tests.c
+set(test_SOURCES
     alternatives_tests.c
+    config_parser_tests.c
+    options_parser_tests.c
+    test.c
 )
-target_link_libraries(units PRIVATE cunit)
-target_link_libraries(units PRIVATE test_libalternative)
-target_compile_definitions(units PUBLIC CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_defaults")
 
-add_test(NAME unit COMMAND units)
+if(BUILD_TESTING)
+    add_executable(units ${test_SOURCES})
+    target_link_libraries(units PRIVATE cunit)
+    target_link_libraries(units PRIVATE TestAlternativeHelper TestLibalternative)
+    target_compile_definitions(units PUBLIC CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_defaults")
 
+    add_test(NAME unit COMMAND units)
 endif()
