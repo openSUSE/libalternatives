@@ -122,7 +122,7 @@ static const char *setBinaryPriority(int priority, struct ConfigParserState *sta
   }
   free(buf);
 
-  if (!entry_found)
+  if (!entry_found && priority > 0)
   {
     /* appending */
     char *content = state->complete_content;

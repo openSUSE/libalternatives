@@ -267,6 +267,17 @@ static void resetNULLEntry()
   CU_ASSERT_PTR_NULL(resetToDefaultPriorityAndReturnUpdatedConfig(NULL));
 }
 
+static void resetNonExistentEntryShouldNotAddNewEntry()
+{
+  const char entries[] = "";
+
+  CU_ASSERT_PTR_NOT_NULL(state = initConfigParser("editor"));
+  CU_ASSERT_EQUAL(parseConfigData(entries, state),0);
+  const char *buffer = resetToDefaultPriorityAndReturnUpdatedConfig(state);
+  CU_ASSERT_STRING_EQUAL(buffer, "");
+  doneConfigParser(state);
+}
+
 void addConfigParserTests()
 {
   CU_pSuite tests = CU_add_suite_with_setup_and_teardown("ConfigParser",
@@ -302,4 +313,5 @@ void addConfigParserTests()
   CU_ADD_TEST(tests, setPriorityMultipleTimes);
   CU_ADD_TEST(tests, resetNULLEntry);
   CU_ADD_TEST(tests, parseEmptyDataAndAddSingleEntry);
+  CU_ADD_TEST(tests, resetNonExistentEntryShouldNotAddNewEntry);
 }
