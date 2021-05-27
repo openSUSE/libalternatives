@@ -15,7 +15,12 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #include <sys/types.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum AlternativeLinkType
 {
@@ -71,4 +76,8 @@ char** defaultManpages(const char *binary_name);
 // for unit testing only, remove from library symbols later
 #ifdef UNITTESTS
 void setConfigDirectory(const char *config_directory);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
