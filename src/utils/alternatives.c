@@ -64,8 +64,10 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 	if (ret < 0) {
 		perror(config_fn);
 		fprintf(stderr, "Error updating override file\n");
+		return -1;
 	}
-	else {
+
+	if (group_priority > 0) {
 		for (const struct AlternativeLink *p = alts; p->type != ALTLINK_EOL; p++) {
 			if (p->type == ALTLINK_GROUP) {
 				if (setConfigOverride(p->target, priority, config_fn) < 0) {

@@ -319,6 +319,75 @@ Alternatives: 3\n\
 "), 0);
 }
 
+static void setPrioritiesAffectEntireGroup()
+{
+	char *args_set[] = {"app", "-u", "-n", "node", "-p", "10"};
+	char *args_reset[] = {"app", "-u", "-n", "node"};
+	char *args_set_system[] = {"app", "-s", "-n", "node", "-p", "10"};
+	char *args_reset_system[] = {"app", "-s", "-n", "node"};
+	char *args_status[] = {"app", "-l", "npm"};
+
+	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: npm\n\
+Alternatives: 3\n\
+  Priority: 10   Target: /usr/bin/npm10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/npm20\n\
+                 Group: node, npm\n\
+  Priority: 30*  Target: /usr/bin/npm30\n\
+                 Group: node, npm\n\
+"), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_set), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: npm\n\
+Alternatives: 3\n\
+  Priority: 10~  Target: /usr/bin/npm10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/npm20\n\
+                 Group: node, npm\n\
+  Priority: 30   Target: /usr/bin/npm30\n\
+                 Group: node, npm\n\
+"), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_set_system), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: npm\n\
+Alternatives: 3\n\
+  Priority: 10~  Target: /usr/bin/npm10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/npm20\n\
+                 Group: node, npm\n\
+  Priority: 30   Target: /usr/bin/npm30\n\
+                 Group: node, npm\n\
+"), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_reset), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: npm\n\
+Alternatives: 3\n\
+  Priority: 10!  Target: /usr/bin/npm10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/npm20\n\
+                 Group: node, npm\n\
+  Priority: 30   Target: /usr/bin/npm30\n\
+                 Group: node, npm\n\
+"), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_reset_system), 0);
+	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
+	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+"Binary: npm\n\
+Alternatives: 3\n\
+  Priority: 10   Target: /usr/bin/npm10\n\
+                 Group: node, npm\n\
+  Priority: 20   Target: /usr/bin/npm20\n\
+                 Group: node, npm\n\
+  Priority: 30*  Target: /usr/bin/npm30\n\
+                 Group: node, npm\n\
+"), 0);
+}
+
 void addAlternativesAppTests()
 {
 	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, removeIOFiles, storeErrorCount, printOutputOnErrorIncrease);
@@ -333,4 +402,5 @@ void addAlternativesAppTests()
 	suite = CU_add_suite_with_setup_and_teardown("Alternative App with Groups Tests", setupGroupTests, restoreGroupTestsAndRemoveIOFiles, storeErrorCount, printOutputOnErrorIncrease);
 	CU_ADD_TEST(suite, listSpecificProgramInAGroup);
 	CU_ADD_TEST(suite, showErrorsForInconsistentGroups);
+	CU_ADD_TEST(suite, setPrioritiesAffectEntireGroup);
 }
