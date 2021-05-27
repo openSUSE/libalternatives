@@ -1,4 +1,4 @@
-/*  libalternatives - update-alternatives alternative
+/*  libalternative - update-alternatives alternative
  *  Copyright (C) 2021  SUSE LLC
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -25,9 +25,9 @@
 #include <unistd.h>
 #include <CUnit/CUnit.h>
 
-#include "../src/libalternatives.h"
+#include "../src/libalternative.h"
 
-extern int alternatives_app_main(int argc, char *argv[]);
+extern int alternative_app_main(int argc, char *argv[]);
 
 static int saved_io[3];
 static char stdout_buffer[10240];
@@ -50,7 +50,7 @@ static int wrapCall(int argc, char *argv[])
 	dup2(stdout_fd, STDOUT_FILENO);
 	dup2(stderr_fd, STDERR_FILENO);
 
-	int ret = alternatives_app_main(argc, argv);
+	int ret = alternative_app_main(argc, argv);
 
 	fflush(stdout);
 	fflush(stderr);
@@ -71,7 +71,7 @@ static int wrapCall(int argc, char *argv[])
 extern void setConfigPath(const char *config_path);
 static int setupTests()
 {
-	const char fn[] = "/libalternatives_local.conf";
+	const char fn[] = "/libalternative_local.conf";
 	const char *wd = get_current_dir_name();
 	char *full_path = (char*)malloc(strlen(wd) + sizeof(fn)); // includes trailing NULL
 	strcpy(full_path, wd);

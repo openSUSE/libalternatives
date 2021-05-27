@@ -1,4 +1,4 @@
-/*  libalternatives - update-alternatives alternative
+/*  libalternative - update-alternatives alternative
  *  Copyright (C) 2021  SUSE LLC
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#include "../src/libalternatives.h"
+#include "../src/libalternative.h"
 
 static int suite_init()
 {
@@ -104,7 +104,7 @@ int main()
 	mkdir(CONFIG_DIR "/no_size_alternatives", 0777);
 	CU_initialize_registry();
 
-	CU_pSuite suite = CU_add_suite("libalternatives test suite", suite_init, suite_cleanup);
+	CU_pSuite suite = CU_add_suite("libalternative test suite", suite_init, suite_cleanup);
 	CU_ADD_TEST(suite, free_null);
 	CU_ADD_TEST(suite, invalid_binary);
 	CU_ADD_TEST(suite, single_alternative_binary);

@@ -1,4 +1,4 @@
-/*  libalternatives - update-alternatives alternative
+/*  libalternative - update-alternatives alternative
  *  Copyright (C) 2021  SUSE LLC
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#include "../libalternatives.h"
+#include "../libalternative.h"
 
 const char binname[] = "alts";
 
@@ -87,7 +87,7 @@ static void printHelp()
 {
 	puts(
 		"\n\n"
-		"  libalternatives (C) 2021  SUSE LLC\n"
+		"  libalternative (C) 2021  SUSE LLC\n"
 		"\n"
 		"    alts -h         --- this help screen\n"
 		"    alts -l[name]   --- list programs or just one with given name\n"
@@ -176,7 +176,7 @@ static int processOptions(int argc, char *argv[])
 }
 
 #ifdef UNITTESTS
-int alternatives_app_main(int argc, char *argv[])
+int alternative_app_main(int argc, char *argv[])
 {
 #else
 int main(int argc, char *argv[])

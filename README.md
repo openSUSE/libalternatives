@@ -1,7 +1,7 @@
 libalternative
 ==============
 
-A configurable alternatives for update-alternatives.
+A configurable alternative for update-alternatives.
 
 
 Purpose
@@ -46,7 +46,7 @@ preferences file that overrides default alternative preference.
 
 Packages need to ship their package preferences in following format,
 
-	/usr/share/libalternatives/<binary>/<pref>.conf
+	/usr/share/libalternative/<binary>/<pref>.conf
 
 where
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(libalternatives
+project(libalternative
     VERSION 1.0.0
     LANGUAGES C
 )
@@ -12,9 +12,9 @@ option(ENABLE_COVERAGE "Add coverage target" OFF)
 set(CONFIG_DIR
     "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}"
     CACHE PATH
-    "Root path for alternatives configs"
+    "Root path for alternative configs"
 )
-set(CONFIG_FILENAME "libalternatives.conf" CACHE STRING "Configueration filename in the SYSCONFDIR")
+set(CONFIG_FILENAME "libalternative.conf" CACHE STRING "Configueration filename in the SYSCONFDIR")
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 if(ENABLE_COVERAGE)

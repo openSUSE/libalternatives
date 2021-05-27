@@ -1,4 +1,4 @@
-/*  libalternatives - update-alternatives alternative
+/*  libalternative - update-alternatives alternative
  *  Copyright (C) 2021  SUSE LLC
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#include "libalternatives.h"
+#include "libalternative.h"
 #include "parser.h"
 
 typedef int(*ParserFunction)(const char *data, size_t len, struct OptionsParserState *state);

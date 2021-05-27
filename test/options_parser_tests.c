@@ -1,4 +1,4 @@
-/*  libalternatives - update-alternatives alternative
+/*  libalternative - update-alternatives alternative
  *  Copyright (C) 2021  SUSE LLC
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 #include <stdlib.h>
 #include <CUnit/CUnit.h>
-#include "../src/libalternatives.h"
+#include "../src/libalternative.h"
 #include "../src/parser.h"
 
 static int noop_function()

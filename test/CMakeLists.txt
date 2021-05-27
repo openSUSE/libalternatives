@@ -6,7 +6,7 @@ add_executable(units
     alternatives_tests.c
 )
 target_link_libraries(units PRIVATE cunit)
-target_link_libraries(units PRIVATE test_libalternatives)
+target_link_libraries(units PRIVATE test_libalternative)
 target_compile_definitions(units PUBLIC CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_defaults")
 
 add_test(NAME unit COMMAND units)

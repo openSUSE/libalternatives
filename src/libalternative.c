@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "libalternatives.h"
+#include "libalternative.h"
 #include "parser.h"
 
 #if !defined(ETC_PATH)
