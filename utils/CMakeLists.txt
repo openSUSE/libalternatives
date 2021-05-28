@@ -11,7 +11,7 @@ set(alts_HEADERS
 add_executable(AlternativesHelper
 	${alts_SOURCES}
 )
-target_link_libraries(AlternativesHelper PUBLIC alternative)
+target_link_libraries(AlternativesHelper PRIVATE alternatives)
 set_property(TARGET AlternativesHelper PROPERTY SKIP_BUILD_RPATH TRUE)
 set_target_properties(AlternativesHelper PROPERTIES OUTPUT_NAME alts)
 
