@@ -1,42 +1,44 @@
-set(libalternative_SOURCES
-    libalternative.c
+set(libalternatives_SOURCES
+    libalternatives.c
     options_parser.c
     config_parser.c
 )
 
-set(libalternative_PUBLIC_HEADERS
-    libalternative.h
+set(libalternatives_PUBLIC_HEADERS
+    libalternatives.h
 )
-set(libalternative_HEADERS
-    ${libalternative_PUBLIC_HEADERS}
+set(libalternatives_HEADERS
+    ${libalternatives_PUBLIC_HEADERS}
     parser.h
 )
 
-add_library(alternative SHARED "${libalternative_SOURCES}")
-set_property(TARGET alternative PROPERTY SOVERSION 1)
-set_property(TARGET alternative PROPERTY
+add_library(alternatives SHARED "${libalternatives_SOURCES}")
+set_property(TARGET alternatives PROPERTY SOVERSION 1)
+set_property(TARGET alternatives PROPERTY
     ETC_PATH test)
-target_compile_definitions(alternative PUBLIC
+target_compile_definitions(alternatives PUBLIC
     ETC_PATH="${CMAKE_INSTALL_SYSCONFDIR}"
     CONFIG_DIR="${CONFIG_DIR}"
     CONFIG_FILENAME="${CONFIG_FILENAME}"
 )
 
 # disable the <libname>_EXPORTS
-set_target_properties(alternative PROPERTIES DEFINE_SYMBOL "")
-set_property(TARGET alternative PROPERTY C_STANDARD 99)
+set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
+set_property(TARGET alternatives PROPERTY C_STANDARD 99)
 
 if(BUILD_TESTING)
     # test library also contains utilities that will be tested
-    add_library(TestLibalternative STATIC ${libalternative_SOURCES})
-    target_compile_definitions(TestLibalternative PRIVATE
+    add_library(TestLibalternatives STATIC ${libalternatives_SOURCES})
+    target_compile_definitions(TestLibalternatives PRIVATE
         ETC_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../test"
         CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../test/test_defaults"
         CONFIG_FILENAME="${CONFIG_FILENAME}"
         UNITTESTS=1
     )
 
-    set_property(TARGET TestLibalternative PROPERTY C_STANDARD 99)
+    set_property(TARGET TestLibalternatives PROPERTY C_STANDARD 99)
 endif()
 
-install(FILES ${libalternative_PUBLIC_HEADERS} DESTINATION include)
+install(FILES ${libalternatives_PUBLIC_HEADERS} DESTINATION include)
+install(TARGETS alternatives)
+

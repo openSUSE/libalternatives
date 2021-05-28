@@ -1,4 +1,4 @@
-/*  libalternative - update-alternatives alternative
+/*  libalternatives - update-alternatives alternative
  *  Copyright (C) 2021  SUSE LLC
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../src/libalternative.h"
+#include "../src/libalternatives.h"
 
 extern const char *binname;
 

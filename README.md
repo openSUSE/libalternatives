@@ -1,4 +1,4 @@
-libalternative
+libalternatives
 ==============
 
 A configurable alternative for update-alternatives.
@@ -46,7 +46,7 @@ preferences file that overrides default alternative preference.
 
 Packages need to ship their package preferences in following format,
 
-	/usr/share/libalternative/<binary>/<pref>.conf
+	/usr/share/libalternatives/<binary>/<pref>.conf
 
 where
 
@@ -93,7 +93,7 @@ the state of one of the executables with a `group` entry.
 
 Notes
 -----
-`libalternative` is NOT aimed to be a replacement for
+`libalternatives` is NOT aimed to be a replacement for
 `update-alternatives`. It is meant as an alternative that tends to stay
 out of the way and provides more flexibility and stability for users and
 the package maintainers.

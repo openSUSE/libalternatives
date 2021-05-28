@@ -1,5 +1,5 @@
 set(alts_SOURCES
-	alternative.c
+	alternatives.c
 	group_consistency_rules.c
 	list_binaries.c
 )
@@ -26,4 +26,4 @@ if(BUILD_TESTING)
     set_property(TARGET TestAlternativeHelper PROPERTY C_STANDARD 99)
 endif()
 
-install(TARGETS alternative AlternativesHelper)
+install(TARGETS AlternativesHelper)

@@ -8,7 +8,7 @@ set(test_SOURCES
 if(BUILD_TESTING)
     add_executable(units ${test_SOURCES})
     target_link_libraries(units PRIVATE cunit)
-    target_link_libraries(units PRIVATE TestAlternativeHelper TestLibalternative)
+    target_link_libraries(units PRIVATE TestAlternativeHelper TestLibalternatives)
     target_compile_definitions(units PUBLIC CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_defaults")
 
     add_test(NAME unit COMMAND units)
