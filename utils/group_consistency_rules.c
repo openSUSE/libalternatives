@@ -89,6 +89,11 @@ int checkGroupConsistencies(const struct InstalledBinaryData *data, unsigned n_b
 		for (unsigned pidx=0; pidx<d->num_priorities; pidx++) {
 			struct AlternativeLink *alts = d->alts[pidx];
 
+			if (alts == NULL) {
+				ret |= 1;
+				continue;
+			}
+
 			if (!isBinaryInGroupOfBinariesOrWithoutGroup(d->binary_name, alts)) {
 				appendError(alts, "WARNING: binary not part of the Group", errors, n_errors);
 				ret |= 1;
