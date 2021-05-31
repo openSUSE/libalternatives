@@ -17,7 +17,7 @@ set_property(TARGET alternatives PROPERTY SOVERSION 1)
 set_property(TARGET alternatives PROPERTY
     ETC_PATH test)
 target_compile_definitions(alternatives PUBLIC
-    ETC_PATH="${CMAKE_INSTALL_SYSCONFDIR}"
+    ETC_PATH="/${CMAKE_INSTALL_SYSCONFDIR}"
     CONFIG_DIR="${CONFIG_DIR}"
     CONFIG_FILENAME="${CONFIG_FILENAME}"
 )
