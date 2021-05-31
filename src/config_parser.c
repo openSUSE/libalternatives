@@ -157,6 +157,7 @@ int parseConfigData(const char *buffer, struct ConfigParserState *state)
   char *begin_buf __attribute__ ((__cleanup__(free_buffer))) = strdup(buffer);
   char *buf = begin_buf;
 
+  free(state->complete_content);
   state->complete_content = strdup(buffer);
 
   char *line;

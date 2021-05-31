@@ -221,6 +221,7 @@ int printInstalledBinariesAndTheirOverrideStates(const char *program)
 		printInstalledBinaryAlternatives(binaries + i, errors, n_errors);
 		freeInstalledBinaryDataStruct(binaries + i);
 	}
+	free(binaries->alts);
 	free(binaries);
 	free(errors);
 
