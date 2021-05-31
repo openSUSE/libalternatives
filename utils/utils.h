@@ -17,7 +17,7 @@
 
 #include "../src/libalternatives.h"
 
-extern const char *binname;
+extern const char binname[];
 
 struct ConsistencyError {
 	const struct AlternativeLink *record;
