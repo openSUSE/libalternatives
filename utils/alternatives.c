@@ -45,22 +45,22 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 		return -1;
 	}
 
-	const char *config_fn = (is_user ? userOverrideFile() : systemOverrideFile());
+	const char *config_fn = (is_user ? get_user_config_path() : get_system_config_path());
 	struct AlternativeLink *alts = NULL;
 	int group_priority = priority;
 	if (group_priority == 0) {
-		group_priority = loadConfigOverride(program, config_fn);
+		group_priority = read_binary_configured_priority_from_file(program, config_fn);
 		if (group_priority < 0) {
 			fprintf(stderr, "Failed to load current state from the config file for binary: %s\n", program);
 			return -1;
 		}
 	}
-	if (group_priority > 0 && loadSpecificAlternativeForBinary(program, group_priority, &alts) != 0) {
+	if (group_priority > 0 && load_exact_priority_binary_alternatives(program, group_priority, &alts) != 0) {
 		fprintf(stderr, "Failed to load config file for binary: %s\n", program);
 		return -1;
 	}
 
-	int ret = setConfigOverride(program, priority, config_fn);
+	int ret = write_binary_configured_priority_to_file(program, priority, config_fn);
 	if (ret < 0) {
 		perror(config_fn);
 		fprintf(stderr, "Error updating override file\n");
@@ -70,7 +70,7 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 	if (group_priority > 0) {
 		for (const struct AlternativeLink *p = alts; p->type != ALTLINK_EOL; p++) {
 			if (p->type == ALTLINK_GROUP) {
-				if (setConfigOverride(p->target, priority, config_fn) < 0) {
+				if (write_binary_configured_priority_to_file(p->target, priority, config_fn) < 0) {
 					perror(config_fn);
 					fprintf(stderr, "Error updating override file for group member: %s (orig binary: %s)\n", p->target, program);
 					ret = -2;
@@ -79,7 +79,7 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 		}
 	}
 
-	freeAlternatives(&alts);
+	free_alternatives_ptr(&alts);
 	return ret;
 }
 
@@ -182,7 +182,7 @@ int alternative_app_main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	if (strcmp(binname, basename(argv[0])) != 0)
-		return execDefault(argv);
+		return exec_default(argv);
 #endif
 	return processOptions(argc, argv);
 }

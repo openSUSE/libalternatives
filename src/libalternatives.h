@@ -40,38 +40,38 @@ struct AlternativeLink
 
 
 // loads highest priority alternative
-int loadHighestAlternativesForBinary(const char *binary_name, struct AlternativeLink **alternatives);
+int load_highest_priority_binary_alternatives(const char *binary_name, struct AlternativeLink **alternatives);
 
-int loadSpecificAlternativeForBinary(const char *binary_name, int prio, struct AlternativeLink **alternatives);
+int load_exact_priority_binary_alternatives(const char *binary_name, int prio, struct AlternativeLink **alternatives);
 
-int listAllAvailableBinaries(char ***binaries, size_t *size);
-int listAllAlternativePrioritiesForBinary(const char *binary_name, int **alts, size_t *size);
+int load_available_binaries(char ***binaries, size_t *size);
+int load_binary_priorities(const char *binary_name, int **alts, size_t *size);
 
 // returns config override (priority) from a given config file
 // 0 otherwise, or -1 on error
-int loadConfigOverride(const char *binary_name, const char *config_path);
+int read_binary_configured_priority_from_file(const char *binary_name, const char *config_path);
 
 // return 0 on success and -1 on error
-int setConfigOverride(const char *binary_name, int priority, const char *config_path);
+int write_binary_configured_priority_to_file(const char *binary_name, int priority, const char *config_path);
 
 // returns config override (priority) from default config files
 // set src => 1 for system, 2 for user
 // returns 0 if not overriden or -1 on error
-int loadDefaultConfigOverride(const char *binary_name, int *src);
+int read_configured_priority(const char *binary_name, int *src);
 
 // config filenames, they may or may not exist
-const char* systemOverrideFile();
-const char* userOverrideFile();
+const char* get_system_config_path();
+const char* get_user_config_path();
 
 // convenience
-void freeAlternatives(struct AlternativeLink **);
+void free_alternatives_ptr(struct AlternativeLink **);
 
 // convenience
-int execDefault(char *argv[]); // binary in argv[0]
+int exec_default(char *argv[]); // binary in argv[0]
 
 // returns a list of manpages followed by a NULL ptr
 // returned data should be freed
-char** defaultManpages(const char *binary_name);
+char** get_default_manpages(const char *binary_name);
 
 // for unit testing only, remove from library symbols later
 #ifdef UNITTESTS

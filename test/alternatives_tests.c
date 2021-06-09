@@ -80,8 +80,8 @@ static int setupTests()
 	setConfigPath(full_path);
 	free((void*)wd);
 
-	unlink(userOverrideFile());
-	unlink(systemOverrideFile());
+	unlink(get_user_config_path());
+	unlink(get_system_config_path());
 
 	return 0;
 }
@@ -89,8 +89,8 @@ static int setupTests()
 static int removeIOFiles()
 {
 	if (CU_get_number_of_failures() == 0) {
-		unlink(userOverrideFile());
-		unlink(systemOverrideFile());
+		unlink(get_user_config_path());
+		unlink(get_system_config_path());
 	}
 
 	unlink("test.stdout");
@@ -208,7 +208,7 @@ Alternatives: 3\n\
   Priority: 30*  Target: /usr/bin/node30\n\
 "), 0);
 
-	CU_ASSERT_EQUAL(loadDefaultConfigOverride(binary_name, &src), 0);
+	CU_ASSERT_EQUAL(read_configured_priority(binary_name, &src), 0);
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_set), 0);
 	CU_ASSERT_EQUAL(stdout_buffer[0], '\0');
@@ -222,7 +222,7 @@ Alternatives: 3\n\
   Priority: 30   Target: /usr/bin/node30\n\
 "), 0);
 
-	CU_ASSERT_EQUAL(loadDefaultConfigOverride(binary_name, &src), 20);
+	CU_ASSERT_EQUAL(read_configured_priority(binary_name, &src), 20);
 	CU_ASSERT_EQUAL(src, 2);
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_set_system), 0);
@@ -237,7 +237,7 @@ Alternatives: 3\n\
   Priority: 30   Target: /usr/bin/node30\n\
 "), 0);
 
-	CU_ASSERT_EQUAL(loadDefaultConfigOverride(binary_name, &src), 20);
+	CU_ASSERT_EQUAL(read_configured_priority(binary_name, &src), 20);
 	CU_ASSERT_EQUAL(src, 2);
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_reset), 0);
@@ -252,7 +252,7 @@ Alternatives: 3\n\
   Priority: 30   Target: /usr/bin/node30\n\
 "), 0);
 
-	CU_ASSERT_EQUAL(loadDefaultConfigOverride(binary_name, &src), 10);
+	CU_ASSERT_EQUAL(read_configured_priority(binary_name, &src), 10);
 	CU_ASSERT_EQUAL(src, 1);
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_reset_system), 0);
@@ -267,7 +267,7 @@ Alternatives: 3\n\
   Priority: 30*  Target: /usr/bin/node30\n\
 "), 0);
 
-	CU_ASSERT_EQUAL(loadDefaultConfigOverride(binary_name, &src), 0);
+	CU_ASSERT_EQUAL(read_configured_priority(binary_name, &src), 0);
 }
 
 extern void setConfigDirectory(const char *);
