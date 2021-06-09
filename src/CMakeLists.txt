@@ -14,16 +14,18 @@ set(libalternatives_HEADERS
 
 add_library(alternatives SHARED "${libalternatives_SOURCES}")
 set_property(TARGET alternatives PROPERTY SOVERSION 1)
-set_property(TARGET alternatives PROPERTY
-    ETC_PATH test)
+set_property(TARGET alternatives PROPERTY ETC_PATH test)
 target_compile_definitions(alternatives PUBLIC
     ETC_PATH="/${CMAKE_INSTALL_SYSCONFDIR}"
     CONFIG_DIR="${CONFIG_DIR}"
     CONFIG_FILENAME="${CONFIG_FILENAME}"
 )
+set_target_properties(alternatives PROPERTIES C_VISIBILITY_PRESET hidden)
+set_target_properties(alternatives PROPERTIES LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libalternatives.version)
+set (CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libalternatives.version")
 
 # disable the <libname>_EXPORTS
-set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
+#set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
 set_property(TARGET alternatives PROPERTY C_STANDARD 99)
 
 if(BUILD_TESTING)

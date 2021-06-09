@@ -52,8 +52,10 @@ const char user_override_path[] = "";
 
 #ifdef __GNUC__
 #define unlikely(x)     __builtin_expect(!!(x), 0)
+#define PUBLIC_FUNC     __attribute__ ((visibility ("default")))
 #else
 #define unlikely(x)     (x)
+#define PUBLIC_FUNC
 #endif
 
 int libalternatives_debug = 0;
@@ -247,12 +249,14 @@ static int loadAlternativeForBinary(const char *binary_name, PriorityMatchFuncti
 	return ret;
 }
 
+PUBLIC_FUNC
 int load_highest_priority_binary_alternatives(const char *binary_name, struct AlternativeLink **alternatives)
 {
 	int prio = 0;
 	return loadAlternativeForBinary(binary_name, PriorityMatch_highest, &prio, alternatives);
 }
 
+PUBLIC_FUNC
 int load_exact_priority_binary_alternatives(const char *binary_name, int prio, struct AlternativeLink **alternatives)
 {
 	return loadAlternativeForBinary(binary_name, PriorityMatch_getExact, &prio, alternatives);
@@ -274,6 +278,7 @@ static int isDotPseudoDirectory(const char *name)
 	return 0;
 }
 
+PUBLIC_FUNC
 int load_available_binaries(char ***binaries_ptr, size_t *size)
 {
 	errno = 0;
@@ -352,6 +357,7 @@ int collectAllPrioritiesInData(int new_prio, __attribute__((unused)) int old_pri
 	return 1;
 }
 
+PUBLIC_FUNC
 int load_binary_priorities(const char *binary_name, int **alts, size_t *size)
 {
 	int ignored;
@@ -416,6 +422,7 @@ static ssize_t loadConfigData(const char *config_path, char *data, const ssize_t
 	return pos;
 }
 
+PUBLIC_FUNC
 int read_binary_configured_priority_from_file(const char *binary_name, const char *config_path)
 {
 	const ssize_t max_config_size = 1 << 10;
@@ -479,6 +486,7 @@ ret:
 	return ret;
 }
 
+PUBLIC_FUNC
 int write_binary_configured_priority_to_file(const char *binary_name, int priority, const char *config_path)
 {
 	const ssize_t max_config_size = 1 << 10;
@@ -502,6 +510,7 @@ int write_binary_configured_priority_to_file(const char *binary_name, int priori
 	return ret;
 }
 
+PUBLIC_FUNC
 void free_alternatives_ptr(struct AlternativeLink **links)
 {
 	for (struct AlternativeLink *ptr=*links; ptr != NULL && ptr->type != ALTLINK_EOL; ptr++)
@@ -511,6 +520,7 @@ void free_alternatives_ptr(struct AlternativeLink **links)
 	*links = NULL;
 }
 
+PUBLIC_FUNC
 int read_configured_priority(const char *binary_name, int *src)
 {
 	// try to load user override
@@ -544,12 +554,14 @@ int read_configured_priority(const char *binary_name, int *src)
 	return priority;
 }
 
+PUBLIC_FUNC
 const char* get_system_config_path()
 {
 	return SYSTEM_OVERRIDE_PATH;
 }
 
 static const char* __override_path;
+PUBLIC_FUNC
 const char* get_user_config_path()
 {
 	if (__override_path == NULL) {
@@ -602,6 +614,7 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 	return ret;
 }
 
+PUBLIC_FUNC
 int exec_default(char *argv[])
 {
 	argv[0]=basename(argv[0]);
@@ -627,6 +640,7 @@ int exec_default(char *argv[])
 	return -1;
 }
 
+PUBLIC_FUNC
 char** get_default_manpages(const char *binary_name)
 {
 	struct AlternativeLink *alts;
