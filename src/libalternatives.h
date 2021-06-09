@@ -40,38 +40,38 @@ struct AlternativeLink
 
 
 // loads highest priority alternative
-int load_highest_priority_binary_alternatives(const char *binary_name, struct AlternativeLink **alternatives);
+int libalts_load_highest_priority_binary_alternatives(const char *binary_name, struct AlternativeLink **alternatives);
 
-int load_exact_priority_binary_alternatives(const char *binary_name, int prio, struct AlternativeLink **alternatives);
+int libalts_load_exact_priority_binary_alternatives(const char *binary_name, int prio, struct AlternativeLink **alternatives);
 
-int load_available_binaries(char ***binaries, size_t *size);
-int load_binary_priorities(const char *binary_name, int **alts, size_t *size);
+int libalts_load_available_binaries(char ***binaries, size_t *size);
+int libalts_load_binary_priorities(const char *binary_name, int **alts, size_t *size);
 
 // returns config override (priority) from a given config file
 // 0 otherwise, or -1 on error
-int read_binary_configured_priority_from_file(const char *binary_name, const char *config_path);
+int libalts_read_binary_configured_priority_from_file(const char *binary_name, const char *config_path);
 
 // return 0 on success and -1 on error
-int write_binary_configured_priority_to_file(const char *binary_name, int priority, const char *config_path);
+int libalts_write_binary_configured_priority_to_file(const char *binary_name, int priority, const char *config_path);
 
 // returns config override (priority) from default config files
 // set src => 1 for system, 2 for user
 // returns 0 if not overriden or -1 on error
-int read_configured_priority(const char *binary_name, int *src);
+int libalts_read_configured_priority(const char *binary_name, int *src);
 
 // config filenames, they may or may not exist
-const char* get_system_config_path();
-const char* get_user_config_path();
+const char* libalts_get_system_config_path();
+const char* libalts_get_user_config_path();
 
 // convenience
-void free_alternatives_ptr(struct AlternativeLink **);
+void libalts_free_alternatives_ptr(struct AlternativeLink **);
 
 // convenience
-int exec_default(char *argv[]); // binary in argv[0]
+int libalts_exec_default(char *argv[]); // binary in argv[0]
 
 // returns a list of manpages followed by a NULL ptr
 // returned data should be freed
-char** get_default_manpages(const char *binary_name);
+char** libalts_get_default_manpages(const char *binary_name);
 
 // for unit testing only, remove from library symbols later
 #ifdef UNITTESTS

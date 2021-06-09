@@ -59,7 +59,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 {
 	char **binary_names_array;
 
-	if (load_available_binaries(&binary_names_array, bin_size) != 0) {
+	if (libalts_load_available_binaries(&binary_names_array, bin_size) != 0) {
 		perror(binname);
 		return -1;
 	}
@@ -72,7 +72,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 		struct InstalledBinaryData *binary = (*binaries_ptr) + i;
 		binary->binary_name = binary_names_array[i];
 
-		if (load_binary_priorities(binary->binary_name, &binary->priorities, &binary->num_priorities) != 0) {
+		if (libalts_load_binary_priorities(binary->binary_name, &binary->priorities, &binary->num_priorities) != 0) {
 			if (errno == ENOENT) {
 				binary->num_priorities = 0;
 				continue;
@@ -84,7 +84,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 		}
 
 		binary->def_priority_src = 0;
-		binary->def_priority = read_configured_priority(binary->binary_name, &binary->def_priority_src);
+		binary->def_priority = libalts_read_configured_priority(binary->binary_name, &binary->def_priority_src);
 
 
 		qsort_r(binary->priorities, binary->num_priorities, sizeof(int), numcmp, NULL);
@@ -100,7 +100,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 			int priority = binary->priorities[i];
 			struct AlternativeLink *alts;
 
-			if (load_exact_priority_binary_alternatives(binary->binary_name, priority, &alts) < 0) {
+			if (libalts_load_exact_priority_binary_alternatives(binary->binary_name, priority, &alts) < 0) {
 				alts = NULL;
 			}
 
@@ -199,7 +199,7 @@ static void freeInstalledBinaryDataStruct(struct InstalledBinaryData *data)
 	free((void*)data->binary_name);
 	free(data->priorities);
 	for (size_t i=0; i<data->num_priorities; i++)
-		free_alternatives_ptr(&data->alts[i]);
+		libalts_free_alternatives_ptr(&data->alts[i]);
 }
 
 int printInstalledBinariesAndTheirOverrideStates(const char *program)

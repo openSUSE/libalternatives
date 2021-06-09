@@ -1,15 +1,15 @@
 ALTS_1 {
 	global:
-		load_highest_priority_binary_alternatives;
-		load_exact_priority_binary_alternatives;
-		load_available_binaries;
-		load_binary_priorities;
-		read_binary_configured_priority_from_file;
-		write_binary_configured_priority_to_file;
-		read_configured_priority;
-		get_system_config_path;
-		get_user_config_path;
-		free_alternatives_ptr;
-		exec_default;
-		get_default_manpages;
+		libalts_load_highest_priority_binary_alternatives;
+		libalts_load_exact_priority_binary_alternatives;
+		libalts_load_available_binaries;
+		libalts_load_binary_priorities;
+		libalts_read_binary_configured_priority_from_file;
+		libalts_write_binary_configured_priority_to_file;
+		libalts_read_configured_priority;
+		libalts_get_system_config_path;
+		libalts_get_user_config_path;
+		libalts_free_alternatives_ptr;
+		libalts_exec_default;
+		libalts_get_default_manpages;
 };

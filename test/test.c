@@ -37,7 +37,7 @@ static void free_null()
 {
 	struct AlternativeLink *data = NULL;
 
-	free_alternatives_ptr(&data);
+	libalts_free_alternatives_ptr(&data);
 	CU_ASSERT_PTR_NULL(data);
 }
 
@@ -46,12 +46,12 @@ static void invalid_binary()
 	int ret;
 	struct AlternativeLink *data = NULL;
 
-	ret = load_highest_priority_binary_alternatives("not_real_binary_binary", &data);
+	ret = libalts_load_highest_priority_binary_alternatives("not_real_binary_binary", &data);
 	CU_ASSERT_EQUAL(ret, -1);
 	CU_ASSERT_EQUAL(errno, ENOENT);
 	CU_ASSERT_PTR_NULL(data);
 
-	ret = load_highest_priority_binary_alternatives("no_size_alternatives", &data);
+	ret = libalts_load_highest_priority_binary_alternatives("no_size_alternatives", &data);
 	CU_ASSERT_EQUAL(ret, -1);
 	CU_ASSERT_PTR_NULL(data);
 }
@@ -61,7 +61,7 @@ static void single_alternative_binary()
 	size_t ret;
 	struct AlternativeLink *data;
 
-	ret = load_highest_priority_binary_alternatives("one_alternative", &data);
+	ret = libalts_load_highest_priority_binary_alternatives("one_alternative", &data);
 	CU_ASSERT_EQUAL(ret, 0);
 	CU_ASSERT_PTR_NOT_NULL(data);
 
@@ -71,7 +71,7 @@ static void single_alternative_binary()
 
 	CU_ASSERT_EQUAL(data[1].type, ALTLINK_EOL);
 
-	free_alternatives_ptr(&data);
+	libalts_free_alternatives_ptr(&data);
 	CU_ASSERT_PTR_NULL(data);
 }
 
@@ -80,7 +80,7 @@ static void multiple_alternative_binary()
 	size_t ret;
 	struct AlternativeLink *data;
 
-	ret = load_highest_priority_binary_alternatives("multiple_alts", &data);
+	ret = libalts_load_highest_priority_binary_alternatives("multiple_alts", &data);
 	CU_ASSERT_EQUAL(ret, 0);
 	CU_ASSERT_PTR_NOT_NULL(data);
 
@@ -90,7 +90,7 @@ static void multiple_alternative_binary()
 
 	CU_ASSERT_EQUAL(data[1].type, ALTLINK_EOL);
 
-	free_alternatives_ptr(&data);
+	libalts_free_alternatives_ptr(&data);
 	CU_ASSERT_PTR_NULL(data);
 }
 

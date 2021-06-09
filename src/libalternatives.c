@@ -250,14 +250,14 @@ static int loadAlternativeForBinary(const char *binary_name, PriorityMatchFuncti
 }
 
 PUBLIC_FUNC
-int load_highest_priority_binary_alternatives(const char *binary_name, struct AlternativeLink **alternatives)
+int libalts_load_highest_priority_binary_alternatives(const char *binary_name, struct AlternativeLink **alternatives)
 {
 	int prio = 0;
 	return loadAlternativeForBinary(binary_name, PriorityMatch_highest, &prio, alternatives);
 }
 
 PUBLIC_FUNC
-int load_exact_priority_binary_alternatives(const char *binary_name, int prio, struct AlternativeLink **alternatives)
+int libalts_load_exact_priority_binary_alternatives(const char *binary_name, int prio, struct AlternativeLink **alternatives)
 {
 	return loadAlternativeForBinary(binary_name, PriorityMatch_getExact, &prio, alternatives);
 }
@@ -279,7 +279,7 @@ static int isDotPseudoDirectory(const char *name)
 }
 
 PUBLIC_FUNC
-int load_available_binaries(char ***binaries_ptr, size_t *size)
+int libalts_load_available_binaries(char ***binaries_ptr, size_t *size)
 {
 	errno = 0;
 
@@ -358,7 +358,7 @@ int collectAllPrioritiesInData(int new_prio, __attribute__((unused)) int old_pri
 }
 
 PUBLIC_FUNC
-int load_binary_priorities(const char *binary_name, int **alts, size_t *size)
+int libalts_load_binary_priorities(const char *binary_name, int **alts, size_t *size)
 {
 	int ignored;
 
@@ -423,7 +423,7 @@ static ssize_t loadConfigData(const char *config_path, char *data, const ssize_t
 }
 
 PUBLIC_FUNC
-int read_binary_configured_priority_from_file(const char *binary_name, const char *config_path)
+int libalts_read_binary_configured_priority_from_file(const char *binary_name, const char *config_path)
 {
 	const ssize_t max_config_size = 1 << 10;
 	char data[max_config_size];
@@ -487,7 +487,7 @@ ret:
 }
 
 PUBLIC_FUNC
-int write_binary_configured_priority_to_file(const char *binary_name, int priority, const char *config_path)
+int libalts_write_binary_configured_priority_to_file(const char *binary_name, int priority, const char *config_path)
 {
 	const ssize_t max_config_size = 1 << 10;
 	char data[max_config_size];
@@ -511,7 +511,7 @@ int write_binary_configured_priority_to_file(const char *binary_name, int priori
 }
 
 PUBLIC_FUNC
-void free_alternatives_ptr(struct AlternativeLink **links)
+void libalts_free_alternatives_ptr(struct AlternativeLink **links)
 {
 	for (struct AlternativeLink *ptr=*links; ptr != NULL && ptr->type != ALTLINK_EOL; ptr++)
 		free((void*)ptr->target);
@@ -521,15 +521,15 @@ void free_alternatives_ptr(struct AlternativeLink **links)
 }
 
 PUBLIC_FUNC
-int read_configured_priority(const char *binary_name, int *src)
+int libalts_read_configured_priority(const char *binary_name, int *src)
 {
 	// try to load user override
-	const char *config_path = get_user_config_path();
+	const char *config_path = libalts_get_user_config_path();
 	int priority = 0;
 	if (config_path != NULL) {
 		if (IS_DEBUG)
 			fprintf(stderr, "Trying to load user override for %s from: %s\n", binary_name, config_path);
-		priority = read_binary_configured_priority_from_file(binary_name, config_path);
+		priority = libalts_read_binary_configured_priority_from_file(binary_name, config_path);
 		if (IS_DEBUG)
 			fprintf(stderr, "user override priority: %d\n", priority);
 		if (unlikely(src != NULL)) {
@@ -541,7 +541,7 @@ int read_configured_priority(const char *binary_name, int *src)
 
 	// if not loaded, try system override
 	if (priority <= 0) {
-		priority = read_binary_configured_priority_from_file(binary_name, SYSTEM_OVERRIDE_PATH);
+		priority = libalts_read_binary_configured_priority_from_file(binary_name, SYSTEM_OVERRIDE_PATH);
 		if (IS_DEBUG)
 			fprintf(stderr, "system override priority: %d\n", priority);
 		if (unlikely(src != NULL)) {
@@ -555,14 +555,14 @@ int read_configured_priority(const char *binary_name, int *src)
 }
 
 PUBLIC_FUNC
-const char* get_system_config_path()
+const char* libalts_get_system_config_path()
 {
 	return SYSTEM_OVERRIDE_PATH;
 }
 
 static const char* __override_path;
 PUBLIC_FUNC
-const char* get_user_config_path()
+const char* libalts_get_user_config_path()
 {
 	if (__override_path == NULL) {
 		const char *config_home = secure_getenv("XDG_CONFIG_HOME");
@@ -594,11 +594,11 @@ void setConfigPath(const char *config_path)
 
 static int loadAlternatives(const char *binary_name, struct AlternativeLink **alts)
 {
-	int priority = read_configured_priority(binary_name, NULL);
+	int priority = libalts_read_configured_priority(binary_name, NULL);
 
 	int ret = 0;
 	if (priority > 0) {
-		ret = load_exact_priority_binary_alternatives(binary_name, priority, alts);
+		ret = libalts_load_exact_priority_binary_alternatives(binary_name, priority, alts);
 		if (unlikely(ret != 0)) {
 			if (IS_DEBUG)
 				fprintf(stderr, "failed to load override priority %d - reseting to default", priority);
@@ -606,7 +606,7 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 		}
 	}
 	if (priority == 0)
-		ret = load_highest_priority_binary_alternatives(binary_name, alts);
+		ret = libalts_load_highest_priority_binary_alternatives(binary_name, alts);
 
 	if (IS_DEBUG)
 		fprintf(stderr, "loaded alternatives?: %d\n", ret);
@@ -615,7 +615,7 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 }
 
 PUBLIC_FUNC
-int exec_default(char *argv[])
+int libalts_exec_default(char *argv[])
 {
 	argv[0]=basename(argv[0]);
 
@@ -641,7 +641,7 @@ int exec_default(char *argv[])
 }
 
 PUBLIC_FUNC
-char** get_default_manpages(const char *binary_name)
+char** libalts_get_default_manpages(const char *binary_name)
 {
 	struct AlternativeLink *alts;
 	checkEnvDebug();
@@ -658,7 +658,7 @@ char** get_default_manpages(const char *binary_name)
 			ptr++;
 		}
 
-		free_alternatives_ptr(&alts);
+		libalts_free_alternatives_ptr(&alts);
 	}
 
 	manpages[pos] = NULL;
