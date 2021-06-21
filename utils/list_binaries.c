@@ -71,6 +71,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 	for (size_t i=0; i<*bin_size; i++) {
 		struct InstalledBinaryData *binary = (*binaries_ptr) + i;
 		binary->binary_name = binary_names_array[i];
+		binary->alts = NULL;
 
 		if (libalts_load_binary_priorities(binary->binary_name, &binary->priorities, &binary->num_priorities) != 0) {
 			if (errno == ENOENT) {
@@ -200,6 +201,7 @@ static void freeInstalledBinaryDataStruct(struct InstalledBinaryData *data)
 	free(data->priorities);
 	for (size_t i=0; i<data->num_priorities; i++)
 		libalts_free_alternatives_ptr(&data->alts[i]);
+	free(data->alts);
 }
 
 int printInstalledBinariesAndTheirOverrideStates(const char *program)
@@ -221,7 +223,6 @@ int printInstalledBinariesAndTheirOverrideStates(const char *program)
 		printInstalledBinaryAlternatives(binaries + i, errors, n_errors);
 		freeInstalledBinaryDataStruct(binaries + i);
 	}
-	free(binaries->alts);
 	free(binaries);
 	free(errors);
 
