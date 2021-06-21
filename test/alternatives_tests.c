@@ -80,6 +80,7 @@ static int setupTests()
 
 	setConfigPath(full_path);
 	free((void*)wd);
+	free(full_path);
 
 	unlink(libalts_get_user_config_path());
 	unlink(libalts_get_system_config_path());
@@ -87,7 +88,7 @@ static int setupTests()
 	return 0;
 }
 
-static int removeIOFiles()
+static int cleanupTests()
 {
 	if (CU_get_number_of_failures() == 0) {
 		unlink(libalts_get_user_config_path());
@@ -281,7 +282,7 @@ static int setupGroupTests()
 static int restoreGroupTestsAndRemoveIOFiles()
 {
 	setConfigDirectory(CONFIG_DIR);
-	return removeIOFiles();
+	return cleanupTests();
 }
 
 static void listSpecificProgramInAGroup()
@@ -425,7 +426,7 @@ static int cleanupExecTests()
 {
 	setConfigDirectory(CONFIG_DIR);
 	//unsetenv("LIBALTERNATIVES_DEBUG");
-	return removeIOFiles();
+	return cleanupTests();
 }
 
 static void failedExecOfUnknown()
@@ -457,7 +458,7 @@ static void validExecCommand()
 
 void addAlternativesAppTests()
 {
-	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, removeIOFiles, storeErrorCount, printOutputOnErrorIncrease);
+	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, cleanupTests, storeErrorCount, printOutputOnErrorIncrease);
 	CU_ADD_TEST(suite, helpScreen);
 	CU_ADD_TEST(suite, unknownParamsHelpScreen);
 	CU_ADD_TEST(suite, moreThanOneCommand);
