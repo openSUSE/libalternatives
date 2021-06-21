@@ -1,0 +1,40 @@
+'\" -*- coding: UTF-8 -*-
+.\" Man page for alts
+.\"
+.\" Copyright ©2021 SUSE LLC
+.\"
+.\" You may distribute under the terms of the GNU General Public
+.\" License as specified in the COPYING file that comes with the
+.\" libalterntaives distribution.
+.\"
+.pc
+.TH ALTS 1 "2021-07-07" "1.0.0" "libalterntaives"
+
+.SH NAME
+alts - manages preferred default commands
+
+.SH SYNOPSIS
+alts [options]
+
+.SH DESCRIPTION
+
+alts is a defaul program manager and its aim is to provide an alternative to update-alternatives system
+without relying on symlinks. Instead of symlinks, it relies on configuration files. This allows for
+simple per-system or per-user override of default configuration.
+
+.SH OPTIONS
+
+    alts -h         --- this help screen
+    alts -l[name]   --- list programs or just one with given name
+    alts [-u] [-s] -n <program> [-p <alt_priority>]
+       sets an override with a given priority as default
+       if priority is not set, then resets to default by removing override
+       -u -- user override, default for non-root users
+       -s -- system overrude, default for root users
+       -n -- program to override with a given priority alternative
+
+
+.SH SEE ALSO
+update-alternatives(1)
+
+.
