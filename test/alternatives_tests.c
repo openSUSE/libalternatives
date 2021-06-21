@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <CUnit/CUnit.h>
@@ -154,7 +155,7 @@ void listAllAvailablePrograms()
 	char *args[] = {"app", "-l"};
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
@@ -172,7 +173,7 @@ Binary: test\n\
 Alternatives: 2\n\
   Priority: 10   Target: /usr/bin/false\n\
   Priority: 20*  Target: /usr/bin/true\n\
-"), 0);
+");
 }
 
 void listSpecificProgram()
@@ -180,13 +181,13 @@ void listSpecificProgram()
 	char *args[] = {"app", "-l", "multiple_alts"};
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
   Priority: 20   Target: /usr/bin/node20\n\
   Priority: 30*  Target: /usr/bin/node30\n\
-"), 0);
+");
 }
 
 void adjustPriorityForSpecificProgram()
@@ -200,13 +201,13 @@ void adjustPriorityForSpecificProgram()
 	int src;
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_read), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
   Priority: 20   Target: /usr/bin/node20\n\
   Priority: 30*  Target: /usr/bin/node30\n\
-"), 0);
+");
 
 	CU_ASSERT_EQUAL(libalts_read_configured_priority(binary_name, &src), 0);
 
@@ -214,13 +215,13 @@ Alternatives: 3\n\
 	CU_ASSERT_EQUAL(stdout_buffer[0], '\0');
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_read), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
   Priority: 20~  Target: /usr/bin/node20\n\
   Priority: 30   Target: /usr/bin/node30\n\
-"), 0);
+");
 
 	CU_ASSERT_EQUAL(libalts_read_configured_priority(binary_name, &src), 20);
 	CU_ASSERT_EQUAL(src, 2);
@@ -229,13 +230,13 @@ Alternatives: 3\n\
 	CU_ASSERT_EQUAL(stdout_buffer[0], '\0');
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_read), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
   Priority: 20~  Target: /usr/bin/node20\n\
   Priority: 30   Target: /usr/bin/node30\n\
-"), 0);
+");
 
 	CU_ASSERT_EQUAL(libalts_read_configured_priority(binary_name, &src), 20);
 	CU_ASSERT_EQUAL(src, 2);
@@ -244,13 +245,13 @@ Alternatives: 3\n\
 	CU_ASSERT_EQUAL(stdout_buffer[0], '\0');
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_read), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10!  Target: /usr/bin/node10\n\
   Priority: 20   Target: /usr/bin/node20\n\
   Priority: 30   Target: /usr/bin/node30\n\
-"), 0);
+");
 
 	CU_ASSERT_EQUAL(libalts_read_configured_priority(binary_name, &src), 10);
 	CU_ASSERT_EQUAL(src, 1);
@@ -259,13 +260,13 @@ Alternatives: 3\n\
 	CU_ASSERT_EQUAL(stdout_buffer[0], '\0');
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_read), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: multiple_alts\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
   Priority: 20   Target: /usr/bin/node20\n\
   Priority: 30*  Target: /usr/bin/node30\n\
-"), 0);
+");
 
 	CU_ASSERT_EQUAL(libalts_read_configured_priority(binary_name, &src), 0);
 }
@@ -288,7 +289,7 @@ static void listSpecificProgramInAGroup()
 	char *args[] = {"app", "-l", "node"};
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: node\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
@@ -297,7 +298,7 @@ Alternatives: 3\n\
                  Group: node, npm\n\
   Priority: 30*  Target: /usr/bin/node30\n\
                  Group: node, npm\n\
-"), 0);
+");
 }
 
 static void showErrorsForInconsistentGroups()
@@ -305,7 +306,7 @@ static void showErrorsForInconsistentGroups()
 	char *args[] = {"app", "-l", "node_bad"};
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), 1);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: node_bad\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/node10\n\
@@ -316,7 +317,7 @@ Alternatives: 3\n\
   WARNING: shadows more complete Group with lower priority\n\
   Priority: 30*  Target: /usr/bin/node30\n\
   WARNING: shadows more complete Group with lower priority\n\
-"), 0);
+");
 }
 
 static void setPrioritiesAffectEntireGroup()
@@ -328,7 +329,7 @@ static void setPrioritiesAffectEntireGroup()
 	char *args_status[] = {"app", "-l", "npm"};
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: npm\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/npm10\n\
@@ -337,10 +338,16 @@ Alternatives: 3\n\
                  Group: node, npm\n\
   Priority: 30*  Target: /usr/bin/npm30\n\
                  Group: node, npm\n\
-"), 0);
+");
+	char **manpages = libalts_get_default_manpages("npm");
+	CU_ASSERT_STRING_EQUAL(manpages[0], "npm30.1");
+	CU_ASSERT_EQUAL(manpages[1], NULL);
+	free(manpages[0]);
+	free(manpages);
+
 	CU_ASSERT_EQUAL(WRAP_CALL(args_set), 0);
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: npm\n\
 Alternatives: 3\n\
   Priority: 10~  Target: /usr/bin/npm10\n\
@@ -349,10 +356,16 @@ Alternatives: 3\n\
                  Group: node, npm\n\
   Priority: 30   Target: /usr/bin/npm30\n\
                  Group: node, npm\n\
-"), 0);
+");
+	manpages = libalts_get_default_manpages("npm");
+	CU_ASSERT_STRING_EQUAL(manpages[0], "npm10.1");
+	CU_ASSERT_EQUAL(manpages[1], NULL);
+	free(manpages[0]);
+	free(manpages);
+
 	CU_ASSERT_EQUAL(WRAP_CALL(args_set_system), 0);
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: npm\n\
 Alternatives: 3\n\
   Priority: 10~  Target: /usr/bin/npm10\n\
@@ -361,10 +374,11 @@ Alternatives: 3\n\
                  Group: node, npm\n\
   Priority: 30   Target: /usr/bin/npm30\n\
                  Group: node, npm\n\
-"), 0);
+");
+
 	CU_ASSERT_EQUAL(WRAP_CALL(args_reset), 0);
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: npm\n\
 Alternatives: 3\n\
   Priority: 10!  Target: /usr/bin/npm10\n\
@@ -373,10 +387,16 @@ Alternatives: 3\n\
                  Group: node, npm\n\
   Priority: 30   Target: /usr/bin/npm30\n\
                  Group: node, npm\n\
-"), 0);
+");
+	manpages = libalts_get_default_manpages("npm");
+	CU_ASSERT_STRING_EQUAL(manpages[0], "npm10.1");
+	CU_ASSERT_EQUAL(manpages[1], NULL);
+	free(manpages[0]);
+	free(manpages);
+
 	CU_ASSERT_EQUAL(WRAP_CALL(args_reset_system), 0);
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
-	CU_ASSERT_EQUAL(strcmp(stdout_buffer,
+	CU_ASSERT_STRING_EQUAL(stdout_buffer,
 "Binary: npm\n\
 Alternatives: 3\n\
   Priority: 10   Target: /usr/bin/npm10\n\
@@ -385,7 +405,54 @@ Alternatives: 3\n\
                  Group: node, npm\n\
   Priority: 30*  Target: /usr/bin/npm30\n\
                  Group: node, npm\n\
-"), 0);
+");
+	manpages = libalts_get_default_manpages("npm");
+	CU_ASSERT_STRING_EQUAL(manpages[0], "npm30.1");
+	CU_ASSERT_EQUAL(manpages[1], NULL);
+	free(manpages[0]);
+	free(manpages);
+}
+
+
+static int setupExecTests()
+{
+	setConfigDirectory(CONFIG_DIR "/../test_exec");
+	//setenv("LIBALTERNATIVES_DEBUG", "1", 1);
+	return setupTests();
+}
+
+static int cleanupExecTests()
+{
+	setConfigDirectory(CONFIG_DIR);
+	//unsetenv("LIBALTERNATIVES_DEBUG");
+	return removeIOFiles();
+}
+
+static void failedExecOfUnknown()
+{
+	char *command_not_found[] = { "/usr/some/something_not_there", "-param", NULL };
+	CU_ASSERT_EQUAL(libalts_exec_default(command_not_found), -1);
+	CU_ASSERT_EQUAL(errno, ENOENT);
+}
+
+static void validExecCommand()
+{
+	char *command_false[] = { "/usr/path/test42", NULL };
+	pid_t child_pid = fork();
+	int status = 1000;
+
+	switch (child_pid) {
+		case -1:
+			CU_ASSERT_FATAL(-1);
+			return;
+		case 0:
+			libalts_exec_default(command_false);
+			exit(100);
+		default:
+			CU_ASSERT_EQUAL_FATAL(wait(&status), child_pid);
+			CU_ASSERT(WIFEXITED(status));
+			CU_ASSERT_EQUAL(WEXITSTATUS(status), 1);
+	}
 }
 
 void addAlternativesAppTests()
@@ -403,4 +470,8 @@ void addAlternativesAppTests()
 	CU_ADD_TEST(suite, listSpecificProgramInAGroup);
 	CU_ADD_TEST(suite, showErrorsForInconsistentGroups);
 	CU_ADD_TEST(suite, setPrioritiesAffectEntireGroup);
+
+	suite = CU_add_suite_with_setup_and_teardown("Default Exec Tests", setupExecTests, cleanupExecTests, storeErrorCount, printOutputOnErrorIncrease);
+	CU_ADD_TEST(suite, failedExecOfUnknown);
+	CU_ADD_TEST(suite, validExecCommand);
 }

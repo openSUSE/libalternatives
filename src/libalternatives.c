@@ -637,6 +637,7 @@ int libalts_exec_default(char *argv[])
 
 	if (IS_DEBUG)
 		fprintf(stderr, "execDefault() failed with target %s\n", (alts ? alts->target : NULL));
+	errno = ENOENT;
 	return -1;
 }
 
