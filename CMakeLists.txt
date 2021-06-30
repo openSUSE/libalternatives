@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
-project(libalternatives
-    VERSION 1.0.0
-    LANGUAGES C
-)
+
+project(libalternatives LANGUAGES C)
 
 include(GNUInstallDirs)
 include(CTest)
@@ -31,3 +29,5 @@ add_subdirectory(src)
 add_subdirectory(utils)
 add_subdirectory(test)
 add_subdirectory(doc)
+
+add_test(check_version sh ${CMAKE_CURRENT_SOURCE_DIR}/release_tag.sh -c)

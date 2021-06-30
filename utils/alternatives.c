@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include "../src/libalternatives.h"
+#include "../config.h"
 
 const char binname[] = "alts";
 
@@ -87,7 +88,7 @@ static void printHelp()
 {
 	puts(
 		"\n\n"
-		"  libalternatives (C) 2021  SUSE LLC\n"
+		"  libalternatives (C) " LIBALTS_RELEASE_YEAR "  SUSE LLC\n"
 		"\n"
 		"    alts -h         --- this help screen\n"
 		"    alts -l[name]   --- list programs or just one with given name\n"
