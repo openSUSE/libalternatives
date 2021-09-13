@@ -21,12 +21,17 @@
 #include "libalternatives.h"
 #include "parser.h"
 
+#ifndef MIN
+#define MIN(a,b) ((a<b)?(a):(b))
+#endif
+
 typedef int(*ParserFunction)(const char *data, size_t len, struct OptionsParserState *state);
 
 struct OptionsParserState
 {
 	u_int32_t parser_func_param, parser_func_param2, parser_func_param3;
 	ParserFunction parser_func;
+	u_int32_t options;
 
 	struct AlternativeLink *parsed_data;
 	int parsed_data_size;
@@ -174,6 +179,100 @@ static int parser_parseMultiValue(const char *data, size_t len, struct OptionsPa
 	return state->parser_func(data, len, state);
 }
 
+struct valid_option_string {
+	const char *label;
+	int options;
+};
+
+static int parser_parseOptions(const char *data, size_t len, struct OptionsParserState *state);
+
+static int parser_skipWhitespaceBeforeOption(const char *data, size_t len, struct OptionsParserState *state)
+{
+	while (len > 0 && isWhitespace(*data)) {
+		len--;
+		data++;
+	}
+
+	if (len == 0)
+		return 0;
+
+	state->parser_func = parser_parseOptions;
+	return state->parser_func(data, len, state);
+}
+
+static int parser_skipWhitespaceBeforeCommaAndOption(const char *data, size_t len, struct OptionsParserState *state)
+{
+	while (len > 0 && isWhitespace(*data)) {
+		len--;
+		data++;
+	}
+
+	if (len == 0)
+		return 0;
+
+	if (*data != ',' && *data != '\n')
+		state->parser_func = parser_alreadyErrorNoResumePossible;
+
+	if (*data == ',') {
+		len--;
+		data++;
+	}
+
+	state->parser_func = parser_skipWhitespaceBeforeOption;
+	return state->parser_func(data, len, state);
+}
+
+static int parser_asssertOption_KeepArgv0(const char *data, size_t len, struct OptionsParserState *state)
+{
+	if (len == 0)
+		return 0;
+
+	const char token[] = "KeepArgv0";
+	u_int32_t pos = state->parser_func_param;
+	u_int32_t max_pos_to_match = MIN(sizeof(token)-1, pos+len);
+
+	while (pos < max_pos_to_match && *data == token[pos]) {
+		pos++;
+		data++;
+		len--;
+	}
+
+	if (pos == max_pos_to_match) {
+		if (pos == sizeof(token)-1) {
+			state->parser_func = parser_skipWhitespaceBeforeCommaAndOption;
+			state->options |= ALTLINK_OPTIONS_KEEPARGV0;
+		}
+		else
+			state->parser_func_param = pos;
+	}
+	else
+		state->parser_func = parser_alreadyErrorNoResumePossible;
+
+	return state->parser_func(data, len, state);
+}
+
+static int parser_parseOptions(const char *data, size_t len, struct OptionsParserState *state)
+{
+	if (len == 0)
+		return 0;
+
+	switch (*data) {
+		case 'K':
+			state->parser_func = parser_asssertOption_KeepArgv0;
+			state->parser_func_param = 1;
+			break;
+		case '\n':
+		case '\r':
+			state->parser_func = parser_searchToken;
+			break;
+		default:
+			state->parser_func = parser_alreadyErrorNoResumePossible;
+			break;
+	}
+
+	return state->parser_func(data+1, len-1, state);
+}
+
 #define AFTER_OFFSET 1000
 enum WhiteSpaceSkipType
 {
@@ -183,6 +282,8 @@ enum WhiteSpaceSkipType
 	MAN_FUNCTION_AFTER_EQUAL=MAN_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
 	GROUP_FUNCTION_BEFORE_EQUAL=3,
 	GROUP_FUNCTION_AFTER_EQUAL=GROUP_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
+	OPTIONS_FUNCTION_BEFORE_EQUAL=4,
+	OPTIONS_FUNCTION_AFTER_EQUAL=OPTIONS_FUNCTION_BEFORE_EQUAL+AFTER_OFFSET,
 };
 
 static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct OptionsParserState *state)
@@ -199,6 +300,7 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Op
 		case BINARY_FUNCTION_BEFORE_EQUAL:
 		case MAN_FUNCTION_BEFORE_EQUAL:
 		case GROUP_FUNCTION_BEFORE_EQUAL:
+		case OPTIONS_FUNCTION_BEFORE_EQUAL:
 			if (!isDelimeter(*data)) {
 				state->parser_func = parser_alreadyErrorNoResumePossible;
 				break;
@@ -229,6 +331,10 @@ static int parser_skipOptionalWhiteSpace(const char *data, size_t len, struct Op
 			state->parser_func_param = findFirstParsedDataLocation(state, ALTLINK_GROUP);
 			state->parser_func_param2 = 0;
 			state->parser_func_param3 = 0;
+			break;
+		case OPTIONS_FUNCTION_AFTER_EQUAL:
+			state->parser_func = parser_skipWhitespaceBeforeOption;
+			break;
 	}
 
 	return state->parser_func(data, len, state);
@@ -279,6 +385,13 @@ static int parser_assertGroupToken(const char *data, size_t len, struct OptionsP
 	return assertTokenMatch(data, len, state, match, sizeof(match)-1, GROUP_FUNCTION_BEFORE_EQUAL);
 }
 
+static int parser_assertOptionsToken(const char *data, size_t len, struct OptionsParserState *state)
+{
+	const char match[] = "options";
+
+	return assertTokenMatch(data, len, state, match, sizeof(match)-1, OPTIONS_FUNCTION_BEFORE_EQUAL);
+}
+
 static int parser_searchToken(const char *data, size_t len, struct OptionsParserState *state)
 {
 	while (len > 0 && (isWhitespace(*data) || *data == '\n' || *data == '\r')) {
@@ -302,6 +415,10 @@ static int parser_searchToken(const char *data, size_t len, struct OptionsParser
 			state->parser_func_param = 1;
 			state->parser_func = parser_assertManpageToken;
 			break;
+		case 'o':
+			state->parser_func_param = 1;
+			state->parser_func = parser_assertOptionsToken;
+			break;
 		default:
 			state->parser_func = parser_alreadyErrorNoResumePossible;
 	};
@@ -317,6 +434,8 @@ struct OptionsParserState* initOptionsParser()
 	state->parser_func_param = 0;
 	state->parsed_data = NULL;
 	state->parsed_data_size = 0;
+
+	state->options = 0;
 
 	return state;
 }
@@ -338,8 +457,10 @@ struct AlternativeLink* doneOptionsParser(int priority, struct OptionsParserStat
 	}
 
 	struct AlternativeLink *parsed_data = state->parsed_data;
-	for (struct AlternativeLink *ptr = parsed_data; ptr && ptr->type != ALTLINK_EOL; ptr++)
+	for (struct AlternativeLink *ptr = parsed_data; ptr && ptr->type != ALTLINK_EOL; ptr++) {
 		ptr->priority = priority;
+		ptr->options = state->options;
+	}
 
 	free(state);
 	return parsed_data;

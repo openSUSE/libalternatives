@@ -456,6 +456,46 @@ static void validExecCommand()
 	}
 }
 
+static void validExecCommandKeepArgv0()
+{
+	char *command_keep_argv[] = { "/usr/path/area47", "area47" };
+	pid_t child_pid = fork();
+	int status = 1000;
+
+	switch (child_pid) {
+		case -1:
+			CU_ASSERT_FATAL(-1);
+			return;
+		case 0:
+			libalts_exec_default(command_keep_argv);
+			exit(100);
+		default:
+			CU_ASSERT_EQUAL_FATAL(wait(&status), child_pid);
+			CU_ASSERT(WIFEXITED(status));
+			CU_ASSERT_EQUAL(WEXITSTATUS(status), 0);
+	}
+}
+
+static void validExecCommandReplacedArgv0()
+{
+	char *command_replace_argv[] = { "/usr/path/area48", "argv_replaced_helper" };
+	pid_t child_pid = fork();
+	int status = 1000;
+
+	switch (child_pid) {
+		case -1:
+			CU_ASSERT_FATAL(-1);
+			return;
+		case 0:
+			libalts_exec_default(command_replace_argv);
+			exit(100);
+		default:
+			CU_ASSERT_EQUAL_FATAL(wait(&status), child_pid);
+			CU_ASSERT(WIFEXITED(status));
+			CU_ASSERT_EQUAL(WEXITSTATUS(status), 0);
+	}
+}
+
 void addAlternativesAppTests()
 {
 	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, cleanupTests, storeErrorCount, printOutputOnErrorIncrease);
@@ -475,4 +515,6 @@ void addAlternativesAppTests()
 	suite = CU_add_suite_with_setup_and_teardown("Default Exec Tests", setupExecTests, cleanupExecTests, storeErrorCount, printOutputOnErrorIncrease);
 	CU_ADD_TEST(suite, failedExecOfUnknown);
 	CU_ADD_TEST(suite, validExecCommand);
+	CU_ADD_TEST(suite, validExecCommandKeepArgv0);
+	CU_ADD_TEST(suite, validExecCommandReplacedArgv0);
 }

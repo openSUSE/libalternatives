@@ -15,11 +15,13 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
+#include <unistd.h>
 
 #include "../src/libalternatives.h"
 
@@ -102,6 +104,8 @@ extern void addAlternativesAppTests();
 int main()
 {
 	mkdir(CONFIG_DIR "/no_size_alternatives", 0777);
+	chdir(CONFIG_DIR "/../..");
+	printf("cwd: %s\n", get_current_dir_name());
 	CU_initialize_registry();
 
 	CU_pSuite suite = CU_add_suite("libalternatives test suite", suite_init, suite_cleanup);

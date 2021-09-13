@@ -11,5 +11,7 @@ if(BUILD_TESTING)
     target_link_libraries(units PRIVATE TestAlternativeHelper TestLibalternatives)
     target_compile_definitions(units PUBLIC CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_defaults")
 
+    add_executable(argv_replaced_helper argv_replaced_helper.c)
+
     add_test(NAME unit COMMAND units)
 endif()

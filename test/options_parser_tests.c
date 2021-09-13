@@ -70,6 +70,7 @@ static void parsingSimpleEntry()
 	CU_ASSERT_EQUAL(result->type, ALTLINK_BINARY);
 	CU_ASSERT_STRING_EQUAL(result->target, "/usr/bin/vim");
 	CU_ASSERT_EQUAL(result->priority, 10);
+	CU_ASSERT_EQUAL(result->options, 0);
 }
 
 static void parsingSimpleWithManpage()
@@ -212,6 +213,7 @@ static void parsesSingleGroup()
 	CU_ASSERT_EQUAL(result[2].type, ALTLINK_EOL);
 
 	CU_ASSERT_STRING_EQUAL(result[1].target, "foobar");
+	CU_ASSERT_EQUAL(result[1].options, ALTLINK_OPTIONS_NONE);
 }
 
 static void parsesMultipleGroupsAsLatestGroupList()
@@ -229,6 +231,27 @@ static void parsesMultipleGroupsAsLatestGroupList()
 
 	CU_ASSERT_STRING_EQUAL(result[1].target, "bar");
 	CU_ASSERT_STRING_EQUAL(result[2].target, "foo");
+}
+
+static void parseWithBadOptions()
+{
+	const char data[] = "binary=/usr/bin/ls\noptions=BadOptions";
+
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data)-1, state), -1);
+	CU_ASSERT_PTR_NULL(result = doneOptionsParser(10, state));
+}
+
+static void parseWithGoodOptions()
+{
+	const char data[] = "binary=/usr/bin/ls\noptions=  KeepArgv0 , KeepArgv0,  ";
+
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	for (unsigned i=0; i<sizeof(data)-1; i++)
+		CU_ASSERT_EQUAL(parseOptionsData(data+i, 1, state), 0);
+	CU_ASSERT_PTR_NOT_NULL(result = doneOptionsParser(10, state));
+
+	CU_ASSERT_EQUAL(result->options, ALTLINK_OPTIONS_KEEPARGV0);
 }
 
 void addOptionsParserTests()
@@ -251,4 +274,6 @@ void addOptionsParserTests()
 	CU_ADD_TEST(tests, parsingMultipleManpages);
 	CU_ADD_TEST(tests, parsesSingleGroup);
 	CU_ADD_TEST(tests, parsesMultipleGroupsAsLatestGroupList);
+	CU_ADD_TEST(tests, parseWithBadOptions);
+	CU_ADD_TEST(tests, parseWithGoodOptions);
 }

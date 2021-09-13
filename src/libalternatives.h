@@ -31,11 +31,18 @@ enum AlternativeLinkType
 	ALTLINK_EOL = -1
 };
 
+enum AlternativeLinkOptions
+{
+	ALTLINK_OPTIONS_NONE = 0,
+	ALTLINK_OPTIONS_KEEPARGV0 = 1,
+};
+
 struct AlternativeLink
 {
 	int priority;
 	int type;
 	const char *target;
+	int options;
 };
 
 
