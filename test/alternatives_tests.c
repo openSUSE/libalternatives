@@ -458,7 +458,7 @@ static void validExecCommand()
 
 static void validExecCommandKeepArgv0()
 {
-	char *command_keep_argv[] = { "/usr/path/area47", "area47" };
+	static char *command_keep_argv[] = { "/usr/path/area47", "area47" };
 	pid_t child_pid = fork();
 	int status = 1000;
 
@@ -478,7 +478,7 @@ static void validExecCommandKeepArgv0()
 
 static void validExecCommandReplacedArgv0()
 {
-	char *command_replace_argv[] = { "/usr/path/area48", "argv_replaced_helper" };
+	static char *command_replace_argv[] = { "/usr/path/area48", "argv_replaced_helper" };
 	pid_t child_pid = fork();
 	int status = 1000;
 
