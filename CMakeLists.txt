@@ -8,6 +8,8 @@ project(libalternatives VERSION 1.2
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CTest)
+find_package(PkgConfig REQUIRED)
+
 
 option(ENABLE_COVERAGE "Add coverage target" OFF)
 

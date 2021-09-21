@@ -6,8 +6,9 @@ set(test_SOURCES
 )
 
 if(BUILD_TESTING)
+    pkg_check_modules(CUnit REQUIRED cunit)
     add_executable(units ${test_SOURCES})
-    target_link_libraries(units PRIVATE cunit)
+    target_link_libraries(units PRIVATE ${CUnit_LIBRARIES})
     target_link_libraries(units PRIVATE TestAlternativeHelper TestLibalternatives)
     target_compile_definitions(units PUBLIC CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_defaults")
 
