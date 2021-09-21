@@ -22,7 +22,7 @@ target_compile_definitions(alternatives PUBLIC
 )
 set_target_properties(alternatives PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(alternatives PROPERTIES LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libalternatives.version)
-set (CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libalternatives.version")
+set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libalternatives.version")
 
 # disable the <libname>_EXPORTS
 #set_target_properties(alternatives PROPERTIES DEFINE_SYMBOL "")
