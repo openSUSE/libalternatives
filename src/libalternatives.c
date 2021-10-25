@@ -115,11 +115,11 @@ static int PriorityMatch_getExact(int a, __attribute__((unused)) int b, void *pr
 
 static int findAltConfig(const char *binary_name, PriorityMatchFunction priority_match_func, int *prio, void *data)
 {
-	int configdirfd = open(getConfigDirectory(), O_DIRECTORY, O_RDONLY);
+	int configdirfd = open(getConfigDirectory(), O_DIRECTORY, O_RDONLY | O_CLOEXEC);
 	if (configdirfd < 0)
 		return -1;
 
-	int binaryconfigdirfd = openat(configdirfd, binary_name, O_DIRECTORY, O_RDONLY);
+	int binaryconfigdirfd = openat(configdirfd, binary_name, O_DIRECTORY, O_RDONLY | O_CLOEXEC);
 	if (binaryconfigdirfd < 0) {
 		int saved_error = errno;
 		close(configdirfd);
@@ -188,7 +188,7 @@ static int findAltConfig(const char *binary_name, PriorityMatchFunction priority
 		return -1;
 	}
 
-	int fd = openat(binaryconfigdirfd, filename, 0, O_RDONLY);
+	int fd = openat(binaryconfigdirfd, filename, 0, O_RDONLY | O_CLOEXEC);
 	if (fd < 0) {
 		int saved_error = errno;
 		free((void*)filename);
@@ -283,7 +283,7 @@ int libalts_load_available_binaries(char ***binaries_ptr, size_t *size)
 {
 	errno = 0;
 
-	int fd = open(getConfigDirectory(), O_RDONLY | O_DIRECTORY);
+	int fd = open(getConfigDirectory(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
 	if (fd == -1)
 		return -1;
 
@@ -378,7 +378,7 @@ int libalts_load_binary_priorities(const char *binary_name, int **alts, size_t *
 
 static ssize_t loadConfigData(const char *config_path, char *data, const ssize_t max_config_size)
 {
-	int fd = open(config_path, O_RDONLY | O_NOFOLLOW);
+	int fd = open(config_path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
 	if (fd < 0)
 		return -1;
 
@@ -449,7 +449,7 @@ static int saveConfigData(const char *config_path, const char *data)
 	if (stat(config_path, &st) == 0) {
 		mode = st.st_mode & (S_IRWXO | S_IRWXG | S_IRWXU);
 	}
-	int fd = open(saved_path, O_CREAT | O_TRUNC | O_WRONLY, mode);
+	int fd = open(saved_path, O_CREAT | O_TRUNC | O_WRONLY | O_CLOEXEC, mode);
 	if (fd < 0) {
 		ret = -1;
 		goto ret;
