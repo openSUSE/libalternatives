@@ -22,7 +22,7 @@ the default handler, this is outside the domain of `update-alternatives`.
 Another major drawback of `update-alternatives` is that it is a state
 system and this state is modified or updated at *installation* time. If
 the state of the running system is to be kept separate from the installation
-state (eg. multiple snapshots of parts of the system), the symlinks
+state (eg. multiple snapshots of parts of the system), the symlinks'
 state can become stale or simply wrong without a *possibility* of a
 fallback mechanism.
 
@@ -37,14 +37,14 @@ user configuration files. By default, the preferred alternative with the
 highest priority is executed. If an alternative is selected by the user
 or the system administrator, this alternative will be executed instead.
 If the user or system selection is unavailable, the system will fall
-back to the default, highest installed priority alternative.
+back to the default, highest priority, installed alternative.
 
 `alts` is a simple wrapper around two config files. First is a
 config file provided by packages that describe the alternatives
 provided. The second config file is either a system or a user
 preferences file that overrides default alternative preference.
 
-Packages need to ship their package preferences in following format,
+Packages need to ship their package preferences in the following format,
 
 	/usr/share/libalternatives/<binary>/<pref>.conf
 
@@ -59,14 +59,14 @@ The config file must be of the following format:
 	man=<list of manpages>
 	group=<list of binaries>
 
-where *binary* entry is mandatory.
+where the *binary* entry is mandatory.
 
 Typically, the *binary* can then be a symlink to
 */usr/bin/alts* that will **exec()** the configured binary
 with largest pref number forwarding all the arguments to the configured
 binary.
 
-*list* constitutes a comma (,) separated items
+*list* consists of comma (,) separated items
 
 For example:
 
@@ -93,6 +93,7 @@ the state of one of the executables with a `group` entry.
 
 Notes
 -----
+
 `libalternatives` is NOT aimed to be a replacement for
 `update-alternatives`. It is meant as an alternative that tends to stay
 out of the way and provides more flexibility and stability for users and
