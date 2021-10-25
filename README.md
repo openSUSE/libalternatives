@@ -22,7 +22,7 @@ the default handler, this is outside the domain of `update-alternatives`.
 Another major drawback of `update-alternatives` is that it is a state
 system and this state is modified or updated at *installation* time. If
 the state of the running system is to be kept separate from the installation
-state (eg. multiple snapshots of parts of the system), the symlinks
+state (eg. multiple snapshots of parts of the system), the symlinks'
 state can become stale or simply wrong without a *possibility* of a
 fallback mechanism.
 
@@ -37,14 +37,14 @@ user configuration files. By default, the preferred alternative with the
 highest priority is executed. If an alternative is selected by the user
 or the system administrator, this alternative will be executed instead.
 If the user or system selection is unavailable, the system will fall
-back to the default, highest installed priority alternative.
+back to the default, highest priority, installed alternative.
 
 `alts` is a simple wrapper around two config files. First is a
 config file provided by packages that describe the alternatives
 provided. The second config file is either a system or a user
 preferences file that overrides default alternative preference.
 
-Packages need to ship their package preferences in following format,
+Packages need to ship their package preferences in the following format,
 
 	/usr/share/libalternatives/<binary>/<pref>.conf
 
@@ -60,7 +60,7 @@ The config file must be of the following format:
 	group=<list of binaries>
 	options=KeepArgv0
 
-where *binary* entry is mandatory and *list* constitutes a comma (,) separated items.
+where the *binary* entry is mandatory and *list* consists of a comma (,) separated items.
 All other entries are optional
 
 Typically, the *binary* can then be a symlink to
@@ -77,7 +77,6 @@ called process needs the name of for argv[0], set the option
 *options=KeepArgv0* in the config file.
 
 Note: Only these two options for argv[0] are available. Some called processes expect other names which cannot be handled by libalternatives.
-
 
 For example:
 
@@ -105,6 +104,7 @@ the state of one of the executables with a `group` entry.
 
 Notes
 -----
+
 `libalternatives` is NOT aimed to be a replacement for
 `update-alternatives`. It is meant as an alternative that tends to stay
 out of the way and provides more flexibility and stability for users and
