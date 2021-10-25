@@ -115,31 +115,31 @@ static int PriorityMatch_getExact(int a, __attribute__((unused)) int b, void *pr
 
 static int findAltConfig(const char *binary_name, PriorityMatchFunction priority_match_func, int *prio, void *data)
 {
-	int configdirfd = open(getConfigDirectory(), O_DIRECTORY, O_RDONLY | O_CLOEXEC);
-	if (configdirfd < 0)
-		return -1;
+	int retfd = -1;
+	int configdirfd = -1;
+	int binaryconfigdirfd = -1;
+	int saved_error = 0;
+	DIR *dir = NULL;
+	const char *filename = NULL;
 
-	int binaryconfigdirfd = openat(configdirfd, binary_name, O_DIRECTORY, O_RDONLY | O_CLOEXEC);
-	if (binaryconfigdirfd < 0) {
-		int saved_error = errno;
-		close(configdirfd);
-		errno = saved_error;
-		return -1;
-	}
+	*prio = 0;
+
+	configdirfd = open(getConfigDirectory(), O_DIRECTORY, O_RDONLY | O_CLOEXEC);
+	if (configdirfd < 0)
+		goto err;
+
+	binaryconfigdirfd = openat(configdirfd, binary_name, O_DIRECTORY, O_RDONLY | O_CLOEXEC);
+	if (binaryconfigdirfd < 0)
+		goto err;
 
 	close(configdirfd);
+	configdirfd = -1;
 
-	DIR *dir = fdopendir(dup(binaryconfigdirfd));
-	if (dir == NULL) {
-		int saved_error = errno;
-		close(binaryconfigdirfd);
-		errno = saved_error;
-		return -1;
-	}
+	dir = fdopendir(dup(binaryconfigdirfd));
+	if (dir == NULL)
+		goto err;
 
 	struct dirent *dirptr;
-	*prio = 0;
-	const char *filename = NULL;
 
 	errno = 0;
 	while ((dirptr = readdir(dir)) != NULL) {
@@ -153,10 +153,7 @@ static int findAltConfig(const char *binary_name, PriorityMatchFunction priority
 				struct stat info;
 
 				if (fstatat(binaryconfigdirfd, dirptr->d_name, &info, AT_SYMLINK_NOFOLLOW) < 0) {
-					int saved_error = errno;
-					closedir(dir);
-					errno = saved_error;
-					return -1;
+					goto err;
 				}
 
 				if (S_ISREG(info.st_mode))
@@ -174,32 +171,27 @@ static int findAltConfig(const char *binary_name, PriorityMatchFunction priority
 			filename = strdup(dirptr->d_name);
 		}
 	}
-	if (errno != 0) {
-		int saved_error = errno;
-		closedir(dir);
-		errno = saved_error;
-		free((void*)filename);
-		return -1;
-	}
-	closedir(dir);
 
-	if (filename == NULL) {
+	if (errno == 0 && filename == NULL)
 		errno = ENOENT;
-		return -1;
-	}
 
-	int fd = openat(binaryconfigdirfd, filename, 0, O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
-		int saved_error = errno;
-		free((void*)filename);
+	if (errno == 0)
+		retfd = openat(binaryconfigdirfd, filename, 0, O_RDONLY | O_CLOEXEC);
+
+err:
+	saved_error = errno;
+
+	if (configdirfd != -1)
+		close(configdirfd);
+	if (binaryconfigdirfd != -1)
 		close(binaryconfigdirfd);
-		errno = saved_error;
-		return -1;
-	}
-	free((void*)filename);
-	close (binaryconfigdirfd);
+	if (dir != NULL)
+		closedir(dir);
 
-	return fd;
+	free((void*)filename);
+	errno = saved_error;
+
+	return retfd;
 }
 
 static int loadAlternativeForBinary(const char *binary_name, PriorityMatchFunction matcher, int *prio, struct AlternativeLink **alternatives)
