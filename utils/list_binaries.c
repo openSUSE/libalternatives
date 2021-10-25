@@ -57,11 +57,12 @@ static void filterStringsArray(const char *filter, char **bins, size_t *bin_size
 
 static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, struct InstalledBinaryData **binaries_ptr, size_t *bin_size)
 {
-	char **binary_names_array;
+	char **binary_names_array = NULL;
+	int ret = -1;
 
 	if (libalts_load_available_binaries(&binary_names_array, bin_size) != 0) {
 		perror(binname);
-		return -1;
+		goto err;
 	}
 
 	filterStringsArray(program_filter, binary_names_array, bin_size);
@@ -80,7 +81,7 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 			}
 			else {
 				perror(binname);
-				return -1;
+				goto err;
 			}
 		}
 
@@ -108,9 +109,13 @@ static int loadInstalledBinariesAndTheirOverrides(const char *program_filter, st
 			binary->alts[i] = alts;
 		}
 	}
+
+	ret = 0;
+
+err:
 	free(binary_names_array);
 
-	return 0;
+	return ret;
 }
 
 static void printErrorsAssociatedWithBinary(const struct AlternativeLink *link, const struct ConsistencyError *errors, unsigned n_errors)

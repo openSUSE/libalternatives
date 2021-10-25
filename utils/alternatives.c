@@ -41,31 +41,33 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 			is_user = 1;
 	}
 
+	struct AlternativeLink *alts = NULL;
+	int ret = -1;
+
 	if (is_system && is_user) {
 		fprintf(stderr, "Trying to override both system and user priorities. Decide on one.\n");
-		return -1;
+		goto err;
 	}
 
 	const char *config_fn = (is_user ? libalts_get_user_config_path() : libalts_get_system_config_path());
-	struct AlternativeLink *alts = NULL;
 	int group_priority = priority;
 	if (group_priority == 0) {
 		group_priority = libalts_read_binary_configured_priority_from_file(program, config_fn);
 		if (group_priority < 0) {
 			fprintf(stderr, "Failed to load current state from the config file for binary: %s\n", program);
-			return -1;
+			goto err;
 		}
 	}
 	if (group_priority > 0 && libalts_load_exact_priority_binary_alternatives(program, group_priority, &alts) != 0) {
 		fprintf(stderr, "Failed to load config file for binary: %s\n", program);
-		return -1;
+		goto err;
 	}
 
-	int ret = libalts_write_binary_configured_priority_to_file(program, priority, config_fn);
+	ret = libalts_write_binary_configured_priority_to_file(program, priority, config_fn);
 	if (ret < 0) {
 		perror(config_fn);
 		fprintf(stderr, "Error updating override file\n");
-		return -1;
+		goto err;
 	}
 
 	if (group_priority > 0) {
@@ -79,8 +81,9 @@ static int setProgramOverride(const char *program, int priority, int is_system, 
 			}
 		}
 	}
-
-	libalts_free_alternatives_ptr(&alts);
+err:
+	if (alts)
+		libalts_free_alternatives_ptr(&alts);
 	return ret;
 }
 
