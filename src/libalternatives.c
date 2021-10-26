@@ -196,26 +196,34 @@ err:
 
 static int loadAlternativeForBinary(const char *binary_name, PriorityMatchFunction matcher, int *prio, struct AlternativeLink **alternatives)
 {
-	int data = *prio;
-	int fd = findAltConfig(binary_name, matcher, prio, &data);
-	if (fd < 0) {
-		*alternatives = NULL;
-		return fd;
+	struct OptionsParserState *state = NULL;
+	int ret = -1;
+	int fd = -1;
+
+	*alternatives = NULL;
+
+	{
+		int data = *prio;
+		fd = findAltConfig(binary_name, matcher, prio, &data);
+		if (fd < 0)
+			goto err;
 	}
 
-	struct OptionsParserState *state = initOptionsParser();
-	char buffer[1024];
-	int ret = 0;
+	state = initOptionsParser();
+
 	struct stat stat_data;
 
-	if (fstat(fd, &stat_data) < 0) {
-		*alternatives = NULL;
-		return -1;
-	}
+	if (fstat(fd, &stat_data) < 0)
+		goto err;
+
 	if (stat_data.st_size > 10240) {
 		fprintf(stderr, "options file with priority %d is unusually large. Truncating to 10kB", *prio);
 		stat_data.st_size = 10240;
 	}
+
+	char buffer[1024];
+
+	ret = 0;
 	while (ret == 0 && stat_data.st_size > 0) {
 		ssize_t s = read(fd, buffer, 1024);
 		if (s > 0) {
@@ -231,13 +239,29 @@ static int loadAlternativeForBinary(const char *binary_name, PriorityMatchFuncti
 				case EINTR:
 					continue;
 				default:
-					return -1;
+					goto err;
 			}
 		}
 	}
 
-	close(fd);
-	*alternatives = doneOptionsParser(*prio, state);
+	if (stat_data.st_size != 0)
+		ret = -1;
+
+	if (ret == 0) {
+		*alternatives = doneOptionsParser(*prio, state);
+		state = NULL;
+	}
+
+err:
+	if (state != NULL) {
+		struct AlternativeLink *tmp = doneOptionsParser(*prio, state);
+		if (tmp != NULL)
+			libalts_free_alternatives_ptr(&tmp);
+	}
+
+	if (fd != -1)
+		close(fd);
+
 	return ret;
 }
 
