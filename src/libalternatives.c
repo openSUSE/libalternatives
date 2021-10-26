@@ -414,29 +414,33 @@ int libalts_load_binary_priorities(const char *binary_name, int **alts, size_t *
 
 static ssize_t loadConfigData(const char *config_path, char *data, const ssize_t max_config_size)
 {
-	int fd = open(config_path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+	ssize_t ret = -1;
+	int fd = -1;
+
+	fd = open(config_path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
 	if (fd < 0)
-		return -1;
+		goto end;
 
 	struct stat stat_data;
 	if (fstat(fd, &stat_data) < 0) {
 		switch (errno) {
 			case ENOENT:
-				return 0;
+				ret = 0;
+				goto end;
 			default:
-				return -1;
+				goto end;
 		}
 	}
 
 	if (stat_data.st_size >= max_config_size) {
 		fprintf(stderr, "ignoring libalternatives config file: %s. Too large.\n", config_path);
-		close(fd);
-		return 0;
+		ret = 0;
+		goto end;
 	}
 
-	ssize_t pos = 0;
+	ret = 0;
 	while (stat_data.st_size != 0) {
-		ssize_t rs = read(fd, data + pos, stat_data.st_size);
+		ssize_t rs = read(fd, data + ret, stat_data.st_size);
 		if (rs == 0 && stat_data.st_size > 0) {
 			fprintf(stderr, "libalternatives config seems to have changed: %s. Trying to parse anyway\n", config_path);
 			break;
@@ -446,16 +450,23 @@ static ssize_t loadConfigData(const char *config_path, char *data, const ssize_t
 				case EINTR:
 					continue;
 				default:
-					return -1;
+					ret = -1;
+					goto end;
 			}
 		}
 		else {
 			stat_data.st_size -= rs;
-			pos += rs;
+			ret += rs;
 		}
 	}
-	data[pos] = '\x00';
-	return pos;
+	data[ret] = '\x00';
+
+end:
+	if (fd != -1)
+		close(fd);
+	if (ret <= 0)
+		data[0] = '\x00';
+	return ret;
 }
 
 PUBLIC_FUNC
