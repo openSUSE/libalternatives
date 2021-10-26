@@ -520,9 +520,12 @@ static int saveConfigData(const char *config_path, const char *data)
 	}
 
 	if (close(fd) == -1 && errno != EINTR) {
+		fd = -1;
 		ret = -1;
 		goto ret;
 	}
+
+	fd = -1;
 
 	ret = rename(saved_path, config_path);
 
@@ -530,6 +533,8 @@ ret:
 	olderr = errno;
 	free((void*)saved_path);
 	errno = olderr;
+	if (fd != -1)
+		close(fd);
 	return ret;
 }
 
