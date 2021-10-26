@@ -691,6 +691,8 @@ int libalts_exec_default(char *argv[])
 
 	if (IS_DEBUG)
 		fprintf(stderr, "execDefault() failed with target %s\n", (alts ? alts->target : NULL));
+	if (alts)
+		libalts_free_alternatives_ptr(&alts);
 	errno = ENOENT;
 	return -1;
 }
