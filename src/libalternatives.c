@@ -298,17 +298,24 @@ PUBLIC_FUNC
 int libalts_load_available_binaries(char ***binaries_ptr, size_t *size)
 {
 	errno = 0;
-
-	int fd = open(getConfigDirectory(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-	if (fd == -1)
-		return -1;
-
-	DIR *dir = fdopendir(fd);
-	if (dir == NULL)
-		return -1;
-
 	*size = 0;
 	*binaries_ptr = NULL;
+
+	int saved_error = 0;
+	int ret = -1;
+	int fd = -1;
+	DIR *dir = NULL;
+
+	fd = open(getConfigDirectory(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (fd == -1)
+		goto err;
+
+	dir = fdopendir(fd);
+	if (dir == NULL) {
+		close(fd);
+		goto err;
+	}
+
 	size_t pos = 0;
 
 	struct dirent *dirent;
@@ -319,7 +326,7 @@ int libalts_load_available_binaries(char ***binaries_ptr, size_t *size)
 			*binaries_ptr = (char**)realloc(*binaries_ptr, sizeof(char*)**size);
 		}
 		if (*binaries_ptr == NULL)
-			return -1;
+			goto err;
 
 		switch (dirent->d_type) {
 			case DT_DIR:
@@ -327,12 +334,8 @@ int libalts_load_available_binaries(char ***binaries_ptr, size_t *size)
 			case DT_UNKNOWN: {
 				// fall-back to detect directory via stat
 				struct stat st;
-				if (fstatat(fd, dirent->d_name, &st, 0) == -1) {
-					int saved_err = errno;
-					closedir(dir);
-					errno = saved_err;
-					return -1;
-				}
+				if (fstatat(fd, dirent->d_name, &st, 0) == -1)
+					goto err;
 
 				if (S_ISDIR(st.st_mode))
 					break;
@@ -348,9 +351,26 @@ int libalts_load_available_binaries(char ***binaries_ptr, size_t *size)
 		(*binaries_ptr)[pos++] = strdup(dirent->d_name);
 	}
 
-	closedir(dir);
 	*size = pos;
-	return 0;
+	ret = 0;
+
+err:
+	saved_error = errno;
+
+	if (dir != NULL)
+		closedir(dir);
+	if (ret != 0 && *binaries_ptr != NULL) {
+		size_t i;
+		for(i = 0; i < pos; i++)
+			free((*binaries_ptr)[i]);
+		free(*binaries_ptr);
+		*binaries_ptr = NULL;
+	}
+
+	if (ret != 0)
+		errno = saved_error;
+
+	return ret;
 }
 
 struct collectPrioData
