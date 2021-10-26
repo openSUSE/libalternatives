@@ -77,6 +77,7 @@ static void appendError(const struct AlternativeLink *data, const char *message,
 
 int checkGroupConsistencies(const struct InstalledBinaryData *data, unsigned n_binaries, enum ConsistencyCheckFlags flags, struct ConsistencyError **errors, unsigned *n_errors)
 {
+	(void)flags;
 	int ret = 0;
 
 	if (n_errors != NULL)
