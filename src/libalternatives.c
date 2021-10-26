@@ -554,10 +554,11 @@ int libalts_write_binary_configured_priority_to_file(const char *binary_name, in
 	else
 		new_data = setBinaryPriorityAndReturnUpdatedConfig(priority, state);
 
-	if (new_data == NULL)
-		return -1;
+	int ret = -1;
 
-	int ret = saveConfigData(config_path, new_data);
+	if (new_data != NULL)
+		ret = saveConfigData(config_path, new_data);
+
 	doneConfigParser(state);
 	return ret;
 }
