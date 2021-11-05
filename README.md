@@ -64,7 +64,11 @@ where *binary* entry is mandatory.
 Typically, the *binary* can then be a symlink to
 */usr/bin/alts* that will **exec()** the configured binary
 with largest pref number forwarding all the arguments to the configured
-binary.
+binary. In normal cases argv[0] contains the program name "alts" because
+argv will given unchanged to the called process. If the called process needs
+the *binary* name of the link for argv[0], set the option *options=KeepArgv0* in the config file.
+
+Note: Only these two options for argv[0] are available. Some called processes expect other names which cannot be handled by libalternatives.
 
 *list* constitutes a comma (,) separated items
 
@@ -72,6 +76,7 @@ For example:
 
 	binary=/usr/bin/vim
 	man=vim.1
+	options=KeepArgv0
 
 *alts* is also the configuration utility that allows system or user
 override of the default binary. See *alts(1)* for details.
