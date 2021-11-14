@@ -60,7 +60,8 @@ static void allocateBuffer(struct AlternativeLink **link, int *size_ptr)
 {
 	int size = *size_ptr;
 	if (*link == NULL || size < 8)
-		size += 8;
+		size = 0;
+	size += 8;
 
 	*link = realloc(*link, sizeof(struct AlternativeLink) * size);
 

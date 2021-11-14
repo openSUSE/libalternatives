@@ -254,6 +254,36 @@ static void parseWithGoodOptions()
 	CU_ASSERT_EQUAL(result->options, ALTLINK_OPTIONS_KEEPARGV0);
 }
 
+static void parseLongGroupsLine()
+{
+	const char data[] = "binary=testing\ngroup=vi,vim,ex,gex,edit,view,rview,eview,vimdiff,gvimdiff, 1  ,2,3,4,5,10";
+
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data), state), 0);
+	CU_ASSERT_PTR_NOT_NULL(result = doneOptionsParser(10, state));
+
+	const struct AlternativeLink *r = result;
+	// parsed groups should appear in same order
+	CU_ASSERT_EQUAL(r->type, ALTLINK_BINARY); CU_ASSERT_STRING_EQUAL(r->target, "testing"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "vi"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "vim"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "ex"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "gex"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "edit"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "view"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "rview"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "eview"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "vimdiff"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "gvimdiff"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "1"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "2"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "3"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "4"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "5"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_GROUP); CU_ASSERT_STRING_EQUAL_FATAL(r->target, "10"); r++;
+	CU_ASSERT_EQUAL(r->type, ALTLINK_EOL);
+}
+
 void addOptionsParserTests()
 {
 	CU_pSuite tests = CU_add_suite_with_setup_and_teardown("parser",
@@ -276,4 +306,5 @@ void addOptionsParserTests()
 	CU_ADD_TEST(tests, parsesMultipleGroupsAsLatestGroupList);
 	CU_ADD_TEST(tests, parseWithBadOptions);
 	CU_ADD_TEST(tests, parseWithGoodOptions);
+	CU_ADD_TEST(tests, parseLongGroupsLine);
 }
