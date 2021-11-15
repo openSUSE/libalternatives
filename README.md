@@ -29,7 +29,7 @@ fallback mechanism.
 Description
 -----------
 
-`libalterntive` provides an *alternative*, not a replacement, to this
+`libalternatives` provides an *alternative*, not a replacement, to this
 symlink management system. Instead of symlinks, the preferred executable
 is executed directly. Which executable is executed depends on the
 available alternatives installed on the system and the system and/or
