@@ -1,9 +1,15 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 
-project(libalternatives LANGUAGES C)
+project(libalternatives VERSION 1.2
+        DESCRIPTION "A configurable alternative for update-alternatives."
+        LANGUAGES C
+)
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 include(CTest)
+find_package(PkgConfig REQUIRED)
+
 
 option(ENABLE_COVERAGE "Add coverage target" OFF)
 
