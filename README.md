@@ -58,20 +58,32 @@ The config file must be of the following format:
 	binary=<absolute path to binary>
 	man=<list of manpages>
 	group=<list of binaries>
+	options=KeepArgv0
 
-where *binary* entry is mandatory.
+where *binary* entry is mandatory and *list* constitutes a comma (,) separated items.
+All other entries are optional
 
 Typically, the *binary* can then be a symlink to
 */usr/bin/alts* that will **exec()** the configured binary
-with largest pref number forwarding all the arguments to the configured
+with largest pref number, forwarding all the arguments to the configured
 binary.
 
-*list* constitutes a comma (,) separated items
+Argv[0]
+-------
+
+In normal cases, argv[0] contains name of the executed target
+by the *alts* binary. In the example below, this would be *vim*. If the
+called process needs the name of for argv[0], set the option 
+*options=KeepArgv0* in the config file.
+
+Note: Only these two options for argv[0] are available. Some called processes expect other names which cannot be handled by libalternatives.
+
 
 For example:
 
 	binary=/usr/bin/vim
 	man=vim.1
+	options=KeepArgv0
 
 *alts* is also the configuration utility that allows system or user
 override of the default binary. See *alts(1)* for details.
