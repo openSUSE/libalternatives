@@ -32,6 +32,31 @@ const char binname[] = "alts";
 
 extern int printInstalledBinariesAndTheirOverrideStates(const char *program);
 
+static int printTargetBinary(const char *program)
+{
+	struct AlternativeLink *target = NULL;
+	int ret = 0;
+
+	int priority = libalts_read_configured_priority(program, NULL);
+	if (priority > 0)
+		ret = libalts_load_exact_priority_binary_alternatives(program, priority, &target);
+	if (priority <= 0 || ret < 0)
+		ret = libalts_load_highest_priority_binary_alternatives(program, &target);
+
+	if (ret != 0)
+		return ret;
+
+	for (struct AlternativeLink *ptr = target; ptr != NULL; ptr++) {
+		if (ptr->type == ALTLINK_BINARY) {
+			puts(ptr->target);
+			break;
+		}
+	}
+
+	libalts_free_alternatives_ptr(&target);
+	return ret;
+}
+
 static int setProgramOverride(const char *program, int priority, int is_system, int is_user)
 {
 	if (!is_user && !is_system) {
@@ -95,6 +120,7 @@ static void printHelp()
 		"\n"
 		"    alts -h         --- this help screen\n"
 		"    alts -l[name]   --- list programs or just one with given name\n"
+		"    alts -t name    --- list executed target with a given name\n"
 		"    alts [-u] [-s] -n <program> [-p <alt_priority>]\n"
 		"       sets an override with a given priority as default\n"
 		"       if priority is not set, then resets to default by removing override\n"
@@ -123,7 +149,7 @@ static int processOptions(int argc, char *argv[])
 	int is_system = 0, is_user = 0;
 
 	optind = 1; // reset since we call this multiple times in unit tests
-	while ((opt = getopt(argc, argv, ":hn:p:l::us")) != -1) {
+	while ((opt = getopt(argc, argv, ":hn:p:t:l::us")) != -1) {
 		switch(opt) {
 			case 'h':
 			case 'r':
@@ -137,6 +163,7 @@ static int processOptions(int argc, char *argv[])
 				break;
 			case 'l':
 			case 'n':
+			case 't':
 				setFirstCommandOrError(&command, opt);
 				program = optarg;
 				if (!optarg && optind < argc && argv[optind] != NULL && argv[optind][0] != '-') {
@@ -169,6 +196,8 @@ static int processOptions(int argc, char *argv[])
 			return -1;
 		case 'l':
 			return printInstalledBinariesAndTheirOverrideStates(program);
+		case 't':
+			return printTargetBinary(program);
 		case 'n':
 			return setProgramOverride(program, priority, is_system, is_user);
 		default:

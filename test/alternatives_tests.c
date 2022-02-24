@@ -300,6 +300,11 @@ Alternatives: 3\n\
   Priority: 30*  Target: /usr/bin/node30\n\
                  Group: node, npm\n\
 ");
+
+	char *args_target[] = {"app", "-t", "node"};
+
+	CU_ASSERT_EQUAL(WRAP_CALL(args_target), 0);
+	CU_ASSERT_STRING_EQUAL(stdout_buffer, "/usr/bin/node30\n");
 }
 
 static void showErrorsForInconsistentGroups()
@@ -364,6 +369,14 @@ Alternatives: 3\n\
 	free(manpages[0]);
 	free(manpages);
 
+	{
+		char *args_target[] = {"app", "-t", "node"};
+
+		CU_ASSERT_EQUAL(WRAP_CALL(args_target), 0);
+		CU_ASSERT_STRING_EQUAL(stdout_buffer, "/usr/bin/node10\n");
+		return;
+	}
+
 	CU_ASSERT_EQUAL(WRAP_CALL(args_set_system), 0);
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
 	CU_ASSERT_STRING_EQUAL(stdout_buffer,
@@ -395,6 +408,14 @@ Alternatives: 3\n\
 	free(manpages[0]);
 	free(manpages);
 
+	{
+		char *args_target[] = {"app", "-t", "node"};
+
+		CU_ASSERT_EQUAL(WRAP_CALL(args_target), 0);
+		CU_ASSERT_STRING_EQUAL(stdout_buffer, "/usr/bin/node10\n");
+		return;
+	}
+
 	CU_ASSERT_EQUAL(WRAP_CALL(args_reset_system), 0);
 	CU_ASSERT_EQUAL(WRAP_CALL(args_status), 0);
 	CU_ASSERT_STRING_EQUAL(stdout_buffer,
@@ -412,6 +433,14 @@ Alternatives: 3\n\
 	CU_ASSERT_EQUAL(manpages[1], NULL);
 	free(manpages[0]);
 	free(manpages);
+
+	{
+		char *args_target[] = {"app", "-t", "node"};
+
+		CU_ASSERT_EQUAL(WRAP_CALL(args_target), 0);
+		CU_ASSERT_STRING_EQUAL(stdout_buffer, "/usr/bin/node30\n");
+		return;
+	}
 }
 
 
