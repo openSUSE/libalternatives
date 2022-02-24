@@ -19,7 +19,7 @@ set(CONFIG_DIR
     "Root path for alternative configs"
 )
 set(CONFIG_FILENAME "libalternatives.conf" CACHE STRING "Configueration filename in the SYSCONFDIR")
-add_compile_options(-Wall -Wextra -Wpedantic)
+add_compile_options(-Wall -Wextra -Wpedantic -fvisibility=hidden)
 
 if(ENABLE_COVERAGE)
     include(./cmake/CodeCoverage.cmake)

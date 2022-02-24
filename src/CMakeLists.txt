@@ -14,6 +14,7 @@ set(libalternatives_HEADERS
 
 add_library(alternatives SHARED "${libalternatives_SOURCES}" "${libalternatives_HEADERS}")
 
+target_compile_options(alternatives PRIVATE -fPIC)
 set_target_properties(alternatives PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
   VERSION ${PROJECT_VERSION}
