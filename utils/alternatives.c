@@ -125,7 +125,7 @@ static void printHelp()
 		"       sets an override with a given priority as default\n"
 		"       if priority is not set, then resets to default by removing override\n"
 		"       -u -- user override, default for non-root users\n"
-		"       -s -- system overrude, default for root users\n"
+		"       -s -- system override, default for root users\n"
 		"       -n -- program to override with a given priority alternative\n"
 		"\n\n"
 	);
