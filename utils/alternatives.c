@@ -150,8 +150,10 @@ static int processOptions(int argc, char *argv[])
 	optind = 1; // reset since we call this multiple times in unit tests
 	while ((opt = getopt(argc, argv, ":hn:p:t:l::us")) != -1) {
 		switch(opt) {
+			case '?':
+				fprintf(stderr, "Invalid option on command-line.\n");
+				// fall-through
 			case 'h':
-			case 'r':
 				setFirstCommandOrError(&command, opt);
 				break;
 			case 'u':

@@ -132,6 +132,7 @@ void helpScreen()
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), 0);
 	CU_ASSERT_PTR_NOT_NULL(strstr(stdout_buffer, "this help screen"));
+	CU_ASSERT_EQUAL(strlen(stderr_buffer), 0);
 }
 
 void unknownParamsHelpScreen()
@@ -140,6 +141,7 @@ void unknownParamsHelpScreen()
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), -1);
 	CU_ASSERT_PTR_NOT_NULL(strstr(stdout_buffer, "this help screen"));
+	CU_ASSERT_STRING_EQUAL(stderr_buffer, "Invalid option on command-line.\n");
 }
 
 void moreThanOneCommand()
@@ -148,6 +150,7 @@ void moreThanOneCommand()
 
 	CU_ASSERT_EQUAL(WRAP_CALL(args), -1);
 	CU_ASSERT_PTR_NOT_NULL(strstr(stdout_buffer, "this help screen"));
+	CU_ASSERT_STRING_EQUAL(stderr_buffer, "Invalid option on command-line.\n");
 }
 
 void listAllAvailablePrograms()
