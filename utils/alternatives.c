@@ -24,12 +24,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include "utils.h"
 #include "../src/libalternatives.h"
 #include "../config.h"
 
 const char binname[] = "alts";
-
-extern int printInstalledBinariesAndTheirOverrideStates(const char *program);
 
 static int printTargetBinary(const char *program)
 {
@@ -186,6 +185,19 @@ static int processOptions(int argc, char *argv[])
 		}
 	}
 
+	if (!command) {
+		command = 1;
+		if (!program && optind < argc) {
+			program = argv[optind++];
+			// TODO: actually this one should check for path
+			// starting with / and then print the
+			// alternative that belongs to the specified binary
+			// TODO: check next arg too and use it to
+			// set the alternative to the specified
+			// binary
+		}
+	}
+
 	switch (command) {
 		case 'h':
 			printHelp();
@@ -195,6 +207,8 @@ static int processOptions(int argc, char *argv[])
 		case 0:
 			printHelp();
 			return -1;
+		case 1:
+			return printInstalledBinariesAndTheirSetting(program);
 		case 'l':
 			return printInstalledBinariesAndTheirOverrideStates(program);
 		case 't':

@@ -38,5 +38,6 @@ enum ConsistencyCheckFlags
 	CONSISTENCY_LOAD_ADDITIONAL_BINARIES = 1
 };
 
+int printInstalledBinariesAndTheirSetting(const char *program);
 int printInstalledBinariesAndTheirOverrideStates(const char *program);
 int checkGroupConsistencies(const struct InstalledBinaryData *data, unsigned n_binaries, enum ConsistencyCheckFlags flags, struct ConsistencyError **errors, unsigned *n_errors);
