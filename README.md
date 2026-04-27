@@ -34,7 +34,7 @@ symlink management system. Instead of symlinks, the preferred executable
 is executed directly. Which executable is executed depends on the
 available alternatives installed on the system and the system and/or
 user configuration files. By default, the preferred alternative with the
-highest priority is executed. If an alternative is selected by the user
+highest priority (larger positive integer) is executed. If an alternative is selected by the user
 or the system administrator, this alternative will be executed instead.
 If the user or system selection is unavailable, the system will fall
 back to the default, highest priority, installed alternative.
@@ -51,7 +51,7 @@ Packages need to ship their package preferences in the following format,
 where
 
 + *binary* is the name of the alternative provided
-+ *pref* is a numeric priority
++ *pref* is a numeric priority, larger integer is higher preference
 
 The config file must be of the following format:
 
