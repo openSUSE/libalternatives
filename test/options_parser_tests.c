@@ -253,6 +253,17 @@ static void parseWithGoodOptions()
 	CU_ASSERT_EQUAL(result->options, ALTLINK_OPTIONS_KEEPARGV0);
 }
 
+static void parseWithUpdateArgv0Option()
+{
+	const char data[] = "binary=/usr/bin/ls\noptions=UpdateArgv0";
+
+	CU_ASSERT_PTR_NOT_NULL(state = initOptionsParser());
+	CU_ASSERT_EQUAL(parseOptionsData(data, sizeof(data)-1, state), 0);
+	CU_ASSERT_PTR_NOT_NULL(result = doneOptionsParser(10, state));
+
+	CU_ASSERT_EQUAL(result->options, ALTLINK_OPTIONS_UPDATEARGV0);
+}
+
 static void parseLongGroupsLine()
 {
 	const char data[] = "binary=testing\ngroup=vi,vim,ex,gex,edit,view,rview,eview,vimdiff,gvimdiff, 1  ,2,3,4,5,10";
@@ -305,5 +316,6 @@ void addOptionsParserTests()
 	CU_ADD_TEST(tests, parsesMultipleGroupsAsLatestGroupList);
 	CU_ADD_TEST(tests, parseWithBadOptions);
 	CU_ADD_TEST(tests, parseWithGoodOptions);
+	CU_ADD_TEST(tests, parseWithUpdateArgv0Option);
 	CU_ADD_TEST(tests, parseLongGroupsLine);
 }

@@ -34,6 +34,7 @@ enum AlternativeLinkOptions
 {
 	ALTLINK_OPTIONS_NONE = 0,
 	ALTLINK_OPTIONS_KEEPARGV0 = 1,
+	ALTLINK_OPTIONS_UPDATEARGV0 = 2,
 };
 
 struct AlternativeLink
