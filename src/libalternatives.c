@@ -669,8 +669,6 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 PUBLIC_FUNC
 int libalts_exec_default(char *argv[])
 {
-	argv[0]=basename(argv[0]);
-
 	struct AlternativeLink *alts;
 	checkEnvDebug();
 	loadAlternatives(argv[0], &alts);
@@ -678,7 +676,7 @@ int libalts_exec_default(char *argv[])
 	if (alts) {
 		while (alts->type != ALTLINK_EOL) {
 			if (alts->type == ALTLINK_BINARY) {
-				if ((alts->options & ALTLINK_OPTIONS_KEEPARGV0) == 0)
+				if ((alts->options & ALTLINK_OPTIONS_UPDATEARGV0) != 0)
 					argv[0] = (char*)alts->target;
 				execv(alts->target, argv);
 				perror("Failed to execute target.");

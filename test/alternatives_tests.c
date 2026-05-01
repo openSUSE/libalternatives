@@ -527,6 +527,26 @@ static void validExecCommandReplacedArgv0()
 	}
 }
 
+static void validExecCommandUpdateArgv0()
+{
+	char *command_update_argv[] = { "/usr/path/area49", "argv_replaced_helper", NULL };
+	pid_t child_pid = fork();
+	int status = 1000;
+
+	switch (child_pid) {
+		case -1:
+			CU_ASSERT_FATAL(-1);
+			return;
+		case 0:
+			libalts_exec_default(command_update_argv);
+			exit(100);
+		default:
+			CU_ASSERT_EQUAL_FATAL(wait(&status), child_pid);
+			CU_ASSERT(WIFEXITED(status));
+			CU_ASSERT_EQUAL(WEXITSTATUS(status), 0);
+	}
+}
+
 void addAlternativesAppTests()
 {
 	CU_pSuite suite = CU_add_suite_with_setup_and_teardown("Alternative App Tests", setupTests, cleanupTests, storeErrorCount, printOutputOnErrorIncrease);
@@ -548,4 +568,5 @@ void addAlternativesAppTests()
 	CU_ADD_TEST(suite, validExecCommand);
 	CU_ADD_TEST(suite, validExecCommandKeepArgv0);
 	CU_ADD_TEST(suite, validExecCommandReplacedArgv0);
+	CU_ADD_TEST(suite, validExecCommandUpdateArgv0);
 }
