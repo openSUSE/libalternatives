@@ -671,7 +671,7 @@ int libalts_exec_default(char *argv[])
 {
 	struct AlternativeLink *alts, *orig_alts;
 	checkEnvDebug();
-	loadAlternatives(argv[0], &alts);
+	loadAlternatives(basename(argv[0]), &alts);
 
 	orig_alts = alts;
 	if (alts) {
