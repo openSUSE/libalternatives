@@ -73,7 +73,8 @@ Argv[0]
 
 In normal cases, argv[0] retaines the path of original binary or symlink
 to the *alts* binary. When UpdateArgv0 is specified, the argv[0] will be
-set to the binary executed by *alts*, so this would be *vim*.
+set to the absolute path of binary executed by *alts*, so this would be
+*/usr/bin/vim*.
 
 Note: Only these two options for argv[0] are available. Some called processes expect
 other names which cannot be handled by libalternatives without helper binaries.
