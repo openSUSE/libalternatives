@@ -71,21 +71,27 @@ binary.
 Argv[0]
 -------
 
-In normal cases, argv[0] contains name of the executed target
-by the *alts* binary. In the example below, this would be *vim*. If the
-called process needs the name of for argv[0], set the option 
-*options=KeepArgv0* in the config file.
+In normal cases, argv[0] retaines the path of original binary or symlink
+to the *alts* binary. When UpdateArgv0 is specified, the argv[0] will be
+set to the absolute path of binary executed by *alts*, so this would be
+*/usr/bin/vim*.
 
-Note: Only these two options for argv[0] are available. Some called processes expect other names which cannot be handled by libalternatives.
+Note: Only these two options for argv[0] are available. Some called processes expect
+other names which cannot be handled by libalternatives without helper binaries.
 
 For example:
 
 	binary=/usr/bin/vim
 	man=vim.1
-	options=KeepArgv0
+	options=UpdateArgv0
 
 *alts* is also the configuration utility that allows system or user
 override of the default binary. See *alts(1)* for details.
+
+**Change Of Behaviour**: Previously, argv0 would be set to basename of the
+binary being executed. To be better compatible with symlinks, this behaviour
+required UpdateArv0 Option to be specified. Without that option, KeepArgv0
+is assumed by default.
 
 Groups
 ------

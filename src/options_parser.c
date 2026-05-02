@@ -251,6 +251,35 @@ static int parser_asssertOption_KeepArgv0(const char *data, size_t len, struct O
 	return state->parser_func(data, len, state);
 }
 
+static int parser_asssertOption_UpdateArgv0(const char *data, size_t len, struct OptionsParserState *state)
+{
+	if (len == 0)
+		return 0;
+
+	const char token[] = "UpdateArgv0";
+	u_int32_t pos = state->parser_func_param;
+	u_int32_t max_pos_to_match = MIN(sizeof(token)-1, pos+len);
+
+	while (pos < max_pos_to_match && *data == token[pos]) {
+		pos++;
+		data++;
+		len--;
+	}
+
+	if (pos == max_pos_to_match) {
+		if (pos == sizeof(token)-1) {
+			state->parser_func = parser_skipWhitespaceBeforeCommaAndOption;
+			state->options |= ALTLINK_OPTIONS_UPDATEARGV0;
+		}
+		else
+			state->parser_func_param = pos;
+	}
+	else
+		state->parser_func = parser_alreadyErrorNoResumePossible;
+
+	return state->parser_func(data, len, state);
+}
+
 static int parser_parseOptions(const char *data, size_t len, struct OptionsParserState *state)
 {
 	if (len == 0)
@@ -259,6 +288,10 @@ static int parser_parseOptions(const char *data, size_t len, struct OptionsParse
 	switch (*data) {
 		case 'K':
 			state->parser_func = parser_asssertOption_KeepArgv0;
+			state->parser_func_param = 1;
+			break;
+		case 'U':
+			state->parser_func = parser_asssertOption_UpdateArgv0;
 			state->parser_func_param = 1;
 			break;
 		case '\n':

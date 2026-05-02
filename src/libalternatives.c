@@ -669,16 +669,15 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 PUBLIC_FUNC
 int libalts_exec_default(char *argv[])
 {
-	argv[0]=basename(argv[0]);
-
-	struct AlternativeLink *alts;
+	struct AlternativeLink *alts, *orig_alts;
 	checkEnvDebug();
-	loadAlternatives(argv[0], &alts);
+	loadAlternatives(basename(argv[0]), &alts);
 
+	orig_alts = alts;
 	if (alts) {
 		while (alts->type != ALTLINK_EOL) {
 			if (alts->type == ALTLINK_BINARY) {
-				if ((alts->options & ALTLINK_OPTIONS_KEEPARGV0) == 0)
+				if ((alts->options & ALTLINK_OPTIONS_UPDATEARGV0) != 0)
 					argv[0] = (char*)alts->target;
 				execv(alts->target, argv);
 				perror("Failed to execute target.");
@@ -690,9 +689,16 @@ int libalts_exec_default(char *argv[])
 
 	if (IS_DEBUG)
 		fprintf(stderr, "execDefault() failed with target %s\n", (alts ? alts->target : NULL));
-	if (alts)
-		libalts_free_alternatives_ptr(&alts);
-	errno = ENOENT;
+
+	int saved_errno = errno;
+	if (orig_alts)
+		libalts_free_alternatives_ptr(&orig_alts);
+
+	if (saved_errno != 0)
+		errno = saved_errno;
+	else
+		errno = ENOENT;
+
 	return -1;
 }
 
