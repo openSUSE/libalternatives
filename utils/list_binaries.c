@@ -233,3 +233,52 @@ int printInstalledBinariesAndTheirOverrideStates(const char *program)
 
 	return ret;
 }
+
+
+static int printInstalledBinaryAndItsSetting(const char *program)
+{
+	int ret = 0;
+	struct AlternativeLink *alts = NULL;
+
+	int priority = libalts_read_configured_priority(program, NULL);
+
+	if (priority > 0) {
+		ret = libalts_load_exact_priority_binary_alternatives(program, priority, &alts);
+		if (ret != 0) {
+			priority = 0;
+		}
+	}
+	if (priority == 0)
+		ret = libalts_load_highest_priority_binary_alternatives(program, &alts);
+
+	if (ret == 0 && alts) {
+		printf("%s\t%s\n", program, alts->target);
+	}
+
+	return ret;
+}
+
+int printInstalledBinariesAndTheirSetting(const char *program)
+{
+	char **binary_names_array = NULL;
+	size_t bin_size = 0;
+	int ret = 0;
+
+	if (program) {
+		return printInstalledBinaryAndItsSetting(program);
+	}
+
+	if (libalts_load_available_binaries(&binary_names_array, &bin_size) != 0) {
+		perror(binname);
+		return 1;
+	}
+
+	qsort_r(&binary_names_array[0], bin_size, sizeof(char*), strcmpp, NULL);
+
+	for (size_t i = 0; i < bin_size; ++i) {
+		if (printInstalledBinaryAndItsSetting(binary_names_array[i]))
+			ret = 1;
+	}
+
+	return ret;
+}
