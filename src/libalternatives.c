@@ -680,12 +680,14 @@ int libalts_exec_default(char *argv[])
 	loadAlternatives(basename(argv[0]), &alts);
 
 	orig_alts = alts;
+	int saved_errno = ENOENT;
 	if (alts) {
 		while (alts->type != ALTLINK_EOL) {
 			if (alts->type == ALTLINK_BINARY) {
 				if ((alts->options & ALTLINK_OPTIONS_UPDATEARGV0) != 0)
 					argv[0] = (char*)alts->target;
 				execv(alts->target, argv);
+				saved_errno = errno;
 				perror("Failed to execute target.");
 				break;
 			}
@@ -696,15 +698,11 @@ int libalts_exec_default(char *argv[])
 	if (IS_DEBUG)
 		fprintf(stderr, "execDefault() failed with target %s\n", (alts ? alts->target : NULL));
 
-	int saved_errno = errno;
 	argv[0] = orig_argv0;
 	if (orig_alts)
 		libalts_free_alternatives_ptr(&orig_alts);
 
-	if (saved_errno != 0)
-		errno = saved_errno;
-	else
-		errno = ENOENT;
+	errno = saved_errno;
 
 	return -1;
 }
