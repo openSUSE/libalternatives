@@ -519,7 +519,7 @@ static void validExecCommandKeepArgv0()
 
 static void validExecCommandReplacedArgv0()
 {
-	char *command_replace_argv[] = { "/usr/path/area48", "argv_replaced_helper", NULL };
+	char *command_replace_argv[] = { "/usr/path/area48", "area48", NULL };
 	pid_t child_pid = fork();
 	int status = 1000;
 
