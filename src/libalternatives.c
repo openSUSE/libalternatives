@@ -669,6 +669,7 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 PUBLIC_FUNC
 int libalts_exec_default(char *argv[])
 {
+	char *orig_argv0 = argv[0];
 	struct AlternativeLink *alts, *orig_alts;
 	checkEnvDebug();
 	loadAlternatives(basename(argv[0]), &alts);
@@ -691,6 +692,7 @@ int libalts_exec_default(char *argv[])
 		fprintf(stderr, "execDefault() failed with target %s\n", (alts ? alts->target : NULL));
 
 	int saved_errno = errno;
+	argv[0] = orig_argv0;
 	if (orig_alts)
 		libalts_free_alternatives_ptr(&orig_alts);
 
