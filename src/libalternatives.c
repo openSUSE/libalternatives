@@ -669,6 +669,11 @@ static int loadAlternatives(const char *binary_name, struct AlternativeLink **al
 PUBLIC_FUNC
 int libalts_exec_default(char *argv[])
 {
+	if (argv == NULL || argv[0] == NULL) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	char *orig_argv0 = argv[0];
 	struct AlternativeLink *alts, *orig_alts;
 	checkEnvDebug();

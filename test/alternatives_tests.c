@@ -467,6 +467,16 @@ static void failedExecOfUnknown()
 	CU_ASSERT_EQUAL(errno, ENOENT);
 }
 
+static void failedExecOfEmptyArgv()
+{
+	CU_ASSERT_EQUAL(libalts_exec_default(NULL), -1);
+	CU_ASSERT_EQUAL(errno, EINVAL);
+
+	char *empty_argv[] = { NULL };
+	CU_ASSERT_EQUAL(libalts_exec_default(empty_argv), -1);
+	CU_ASSERT_EQUAL(errno, EINVAL);
+}
+
 static void validExecCommand()
 {
 	char *command_false[] = { "/usr/path/test42", NULL };
@@ -565,6 +575,7 @@ void addAlternativesAppTests()
 
 	suite = CU_add_suite_with_setup_and_teardown("Default Exec Tests", setupExecTests, cleanupExecTests, storeErrorCount, printOutputOnErrorIncrease);
 	CU_ADD_TEST(suite, failedExecOfUnknown);
+	CU_ADD_TEST(suite, failedExecOfEmptyArgv);
 	CU_ADD_TEST(suite, validExecCommand);
 	CU_ADD_TEST(suite, validExecCommandKeepArgv0);
 	CU_ADD_TEST(suite, validExecCommandReplacedArgv0);
